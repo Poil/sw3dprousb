@@ -40,9 +40,14 @@
 #define	_USBDESCR_H_
 
 //------------------------------------------------------------------------------
-// Descriptor defines
+
+#define LSB( n )		( (uint16_t)(n)       & 0xFF)
+#define MSB( n )		(((uint16_t)(n) >> 8) & 0xFF)
 
 #define	LVAL( n )		LSB( n ), MSB( n )
+
+//------------------------------------------------------------------------------
+// Descriptor defines
 
 #define USB_CFG_MAN_ID		LVAL( 0x045E )		/* Microsoft */
 
@@ -54,6 +59,31 @@
 #define USB_CFG_DEVICE_VERSION	LVAL( 0x0400 )		/* 4.00 */
 
 #define USB_CFG_MAX_BUS_POWER	100			/* in mA */
+
+#define USBATTR_BUSPOWER	0x80			/* Mandatory attr., see USB 2.0 9.6.3 */
+#define USBATTR_SELFPOWER	0x40
+#define USBATTR_REMOTEWAKE	0x20
+
+#define USB_CFG_DEVICE_CLASS	0
+#define USB_CFG_DEVICE_SUBCLASS	0
+
+//------------------------------------------------------------------------------
+
+#define USB_CFG_INTERFACE_CLASS	   3			/* HID */
+#define USB_CFG_INTERFACE_SUBCLASS 0
+#define USB_CFG_INTERFACE_PROTOCOL 0
+
+//------------------------------------------------------------------------------
+
+#define CFG_HID_REPORT_DESC_SZ_3DP (84 + HID_PHYS * 16 + COMPDEV * 39 + SIXAXIS * 4)
+#define CFG_HID_REPORT_DESC_SZ_FFP (92 + HID_PHYS * 18 + COMPDEV * 39)	/* PP, FFP */
+
+//------------------------------------------------------------------------------
+
+#define	USB_DEVICE_DESC_SZ      18
+#define	USB_CONFIG_DESC_SZ      (9 + 9 + 9 + 7)
+
+//------------------------------------------------------------------------------
 
 #define CFG_STR_SER		'0', '3', '0', '3'	/* 1st ATUSB proto */
 #define CFG_STR_SER_SZ		4
@@ -82,9 +112,6 @@
 				'P','r','o',' ','(','U','S','B',')'
 #define CFG_STR_DEV_FFP_SZ	45
 
-#define CFG_HID_REPORT_DESC_SZ_3DP (84 + HID_PHYS * 16 + COMPDEV * 39 + SIXAXIS * 4)
-#define CFG_HID_REPORT_DESC_SZ_FFP (92 + HID_PHYS * 18 + COMPDEV * 39)	/* PP, FFP */
-
 #define USB_STR_SZ( sz )	(sizeof( uint8_t ) * 2 + sizeof( int16_t ) * (sz))
 
 #define	USB_STR_LAN_SZ		USB_STR_SZ( 1 )
@@ -100,9 +127,6 @@
 #define	USB_STR_IDX_3DP		3
 #define	USB_STR_IDX_PP		4
 #define	USB_STR_IDX_FFP		5
-
-#define	USB_DEVICE_DESC_SZ      18
-#define	USB_CONFIG_DESC_SZ      (9 + 9 + 9 + 7)
 
 //------------------------------------------------------------------------------
 // Descriptor declarations

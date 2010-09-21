@@ -43,8 +43,8 @@
 
 #define	COMPDEV		0		/* Experimental composite device	*/
 #define	SIXAXIS		0		/* Experimental joystick as POV		*/
-#define	HID_PHYS	0		/* Physical min/max in HID report	*/
-
+#define	HID_PHYS	1		/* Physical min/max in HID report	*/
+					/* (W98 actually needs these...)	*/
 #if SIXAXIS
  #if COMPDEV
    #error "COMPDEV and SIXAXIS can't be active at the same time"
