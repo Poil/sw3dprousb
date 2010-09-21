@@ -48,8 +48,35 @@ extern volatile uint8_t
 					// 1 if enumerated, else 0
 
 //------------------------------------------------------------------------------
+// USB descriptor constants
 
-#ifdef __usb_hid__			// usb_hid.c local defines
+#define USBDESCR_DEVICE		1
+#define USBDESCR_CONFIG		2
+#define USBDESCR_STRING		3
+#define USBDESCR_INTERFACE	4
+#define USBDESCR_ENDPOINT	5
+#define USBDESCR_HID		0x21
+#define USBDESCR_HID_REPORT	0x22
+#define USBDESCR_HID_PHYS	0x23
+
+//------------------------------------------------------------------------------
+
+#define USB_CFG_INTR_POLL_INTERVAL 5
+
+//------------------------------------------------------------------------------
+
+#define ENDPOINT0_SIZE		64
+
+#define HID_ENDPOINT		1
+#define HIDEP_SIZE		8	/* next up would be 16 */
+
+//------------------------------------------------------------------------------
+
+#ifdef __usb_hid__		// usb_hid.c local defines
+
+//------------------------------------------------------------------------------
+
+#define	USBLV( h, l )		(((uint16_t)(h) << 8) + (l))
 
 //------------------------------------------------------------------------------
 
@@ -163,45 +190,6 @@ extern volatile uint8_t
 //------------------------------------------------------------------------------
 
 #endif // __usb_hid__
-
-//------------------------------------------------------------------------------
-
-#define ENDPOINT0_SIZE			64
-
-#define HID_ENDPOINT			1
-#define HIDEP_SIZE			8	/* next up would be 16 */
-
-//------------------------------------------------------------------------------
-// USB descriptor constants
-
-#define USBDESCR_DEVICE			1
-#define USBDESCR_CONFIG			2
-#define USBDESCR_STRING			3
-#define USBDESCR_INTERFACE		4
-#define USBDESCR_ENDPOINT		5
-#define USBDESCR_HID			0x21
-#define USBDESCR_HID_REPORT		0x22
-#define USBDESCR_HID_PHYS		0x23
-
-#define USBATTR_BUSPOWER		0x80	/* Mandatory attr., see USB 2.0 9.6.3 */
-#define USBATTR_SELFPOWER		0x40
-#define USBATTR_REMOTEWAKE		0x20
-
-#define USB_CFG_DEVICE_CLASS		0
-#define USB_CFG_DEVICE_SUBCLASS		0
-
-#define USB_CFG_INTERFACE_CLASS		3	/* HID */
-#define USB_CFG_INTERFACE_SUBCLASS	0
-#define USB_CFG_INTERFACE_PROTOCOL	0
-
-#define USB_CFG_INTR_POLL_INTERVAL	5
-
-//------------------------------------------------------------------------------
-
-#define LSB( n )		( (uint16_t)(n)       & 0xFF)
-#define MSB( n )		(((uint16_t)(n) >> 8) & 0xFF)
-
-#define	USBLV( h, l )		(((uint16_t)(h) << 8) + (l))
 
 //------------------------------------------------------------------------------
 
