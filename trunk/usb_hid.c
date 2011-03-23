@@ -3,8 +3,8 @@
  * Project	: 3DP-Vert, Microsoft Sidewinder 3D Pro/PP/FFP to USB converter
  * Date		: 2009/06/27
  * Version      : 1.0
- * Target MCU	: AT90USB162/AT90USB82, AT90USB646, ATMEGA16U4/ATMEGA32U4
- * Tool Chain	: Atmel AVR Studio 4.17 666 / WinAVR 20090313
+ * Target MCU	: AT90USB162/82, AT90USB646/1286, ATMEGA16U4/32U4
+ * Tool Chain	: Atmel AVR Studio 4.18 716 / WinAVR 20100110
  * Author       : Detlef "Grendel" Mueller
  *                detlef@gmail.com
  * References	: usb_mouse.c by PRJC
@@ -59,7 +59,7 @@ static const prog_uint8_t
 	FALSE,
 	FALSE,
 	FALSE
-      #if defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USB646__)
+      #if defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USBX6__)
 	,FALSE
 	,FALSE
       #endif
@@ -500,7 +500,7 @@ ISR( USB_COM_vect )
 	    // Reset EP FIFOs
 
 	    UERST =
-		#if defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USB646__)
+		#if defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USBX6__)
 		    _B1(EPRST6) | _B1(EPRST5) |
 		#endif
 		    _B1(EPRST4) | _B1(EPRST3) | _B1(EPRST2) | _B1(EPRST1) ;
