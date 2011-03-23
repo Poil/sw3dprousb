@@ -4,7 +4,7 @@
  * Date		: 2009/06/22
  * Version      : 1.0
  * Target MCU   : AVR
- * Tool Chain   : Atmel AVR Studio 4.17 666 / WinAVR 20090313
+ * Tool Chain   : Atmel AVR Studio 4.18 716 / WinAVR 20100110
  * Author       : Detlef Mueller
  *                detlef@gmail.com
  * Release Notes:
@@ -38,6 +38,8 @@
  #define __AVR_AT90USBX2__
 #elif defined(__AVR_ATmega16U4__) || defined(__AVR_ATmega32U4__)
  #define __AVR_ATmegaXU4__
+#elif defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
+ #define __AVR_AT90USBX6__
 #else
  #error "Unsupported device"
 #endif

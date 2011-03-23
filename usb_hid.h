@@ -3,8 +3,8 @@
  * Project	: 3DP-Vert, Microsoft Sidewinder 3D Pro/PP/FFP to USB converter
  * Date		: 2009/06/27
  * Version      : 1.0
- * Target MCU	: AT90USB162/AT90USB82, AT90USB646, ATMEGA16U4/ATMEGA32U4
- * Tool Chain	: Atmel AVR Studio 4.17 666 / WinAVR 20090313
+ * Target MCU	: AT90USB162/82, AT90USB646/1286, ATMEGA16U4/32U4
+ * Tool Chain	: Atmel AVR Studio 4.18 716 / WinAVR 20100110
  * Author       : Detlef "Grendel" Mueller
  *                detlef@gmail.com
  * Release Notes:
@@ -87,14 +87,20 @@ extern volatile uint8_t
 				  _B0(PLLP2)  | _B0(PLLP1)   | _B1(PLLP0))
  #define USB_CONFIG()	(USBCON = _B1(USBE)   | _B0(FRZLK))
 
-#elif defined(__AVR_AT90USB646__)
+#elif defined(__AVR_AT90USBX6__)
 
  #define HW_CONFIG()	(UHWCON = _B1(UVREGE) | \
 				  _B1(UIMOD)  | _B0(UIDE)    | _B0(UVCONE))
- #define PLL_CONFIG()	(PLLCSR = _B1(PLLE)   | _B0(PLOCK)   | \
-				  _B1(PLLP2)  | _B1(PLLP1)   | _B0(PLLP0))
  #define USB_CONFIG()	(USBCON = _B1(USBE)   | _B0(FRZCLK)  | \
  				  _B0(HOST)   | _B1(OTGPADE) | _B0(IDTE) | _B0(VBUSTE))
+
+ #if defined(__AVR_AT90USB646__)
+  #define PLL_CONFIG()	(PLLCSR = _B1(PLLE)   | _B0(PLOCK)   | \
+				  _B1(PLLP2)  | _B1(PLLP1)   | _B0(PLLP0))
+ #elif defined(__AVR_AT90USB1286__)
+  #define PLL_CONFIG()	(PLLCSR = _B1(PLLE)   | _B0(PLOCK)   | \
+				  _B1(PLLP2)  | _B0(PLLP1)   | _B1(PLLP0))
+ #endif
 
 #elif defined(__AVR_ATmegaXU4__)
 
@@ -128,7 +134,7 @@ extern volatile uint8_t
 			((s) == 16 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
 			0x00)))
 
-#elif defined(__AVR_AT90USB646__) || defined(__AVR_ATmegaXU4__)
+#elif defined(__AVR_AT90USBX6__) || defined(__AVR_ATmegaXU4__)
 
 // 256 & 128 for EP1 only
 
@@ -156,7 +162,7 @@ extern volatile uint8_t
 
  #define MAX_ENDPOINT		4
 
-#elif defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USB646__)
+#elif defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USBX6__)
 
  #define MAX_ENDPOINT		6
 

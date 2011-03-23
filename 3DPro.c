@@ -3,8 +3,8 @@
  * Project	: 3DP-Vert, Microsoft Sidewinder 3D Pro/PP/FFP to USB converter
  * Date		: 2005/05/31, 2006/12/14, 2008/02/12, 2009/06/26
  * Version	: 4.0
- * Target MCU	: AT90USB162/AT90USB82, ATMEGA16U4/ATMEGA32U4
- * Tool Chain	: Atmel AVR Studio 4.17 666 / WinAVR 20090313
+ * Target MCU	: AT90USB162/82, AT90USB646/1286, ATMEGA16U4/32U4
+ * Tool Chain	: Atmel AVR Studio 4.18 716 / WinAVR 20100110
  * Author	: Detlef "Grendel" Mueller
  *		  detlef@gmail.com
  * References	: Sidewinder.c by Vojtech Pavlik
@@ -38,6 +38,18 @@
  *	PB5	Y2 axis			PD5	--			PF5	--
  *	PB6	--	PC6	--	PD6	LED	PE6	--	PF6	--
  *	PB7	--	PC7	--	PD7	--			PF7	--
+ *
+ *	Pinout AT90USBX6
+ *	================
+ *
+ *	PA0	--	PB0	--	PC0	--	PD0	Button1	PE0	--	PF0	--
+ *	PA1	--	PB1	--	PC1	--	PD1	Button2	PE1	--	PF1	--
+ *	PA2	--	PB2	--	PC2	--	PD2	Button3	PE2	--	PF2	--
+ *	PA3	--	PB3	--	PC3	--	PD3	Button4	PE3	--	PF3	--
+ *	PA4	--	PB4	X1 axis	PC4	--	PD4	--	PE4	--	PF4	--
+ *	PA5	--	PB5	Y2 axis	PC5	--	PD5	--	PE5	--	PF5	--
+ *	PA6	--	PB6	--	PC6	--	PD6	LED	PE6	--	PF6	--
+ *	PA7	--	PB7	--	PC7	--	PD7	--	PE7	--	PF7	--
  *
  * $Id: 3DPro.c 1.6 2010/04/23 05:27:52 Detlef Exp Detlef $
  *
@@ -73,10 +85,34 @@
 #define	PU1( b )	_B1( b )	/* pull up on (if DDI) */
 #define	PU0( b )	_B0( b )	/* pull up off */
 
+// Port B
+
 #define PBPU		(PU1( PB7) | PU1( PB6) | PU0( PB5) | PU0( PB4) | \
 			 PU1( PB3) | PU1( PB2) | PU1( PB1) | PU1( PB0))
 #define DDB		(DDI(DDB7) | DDI(DDB6) | DDI(DDB5) | DDI(DDB4) | \
 			 DDI(DDB3) | DDI(DDB2) | DDI(DDB1) | DDI(DDB0))
+
+// Port D
+
+#if defined(__AVR_AT90USBX2__)
+
+#define PDPU		(PU0( PD7) | _B0( PD6) | PU1( PD5) | PU1( PD4) | \
+			 PU1( PD3) | PU1( PD2) | PU1( PD1) | PU1( PD0))
+
+#elif defined(__AVR_AT90USB646__)
+
+#define PDPU		(PU1( PD7) | _B0( PD6) | PU1( PD5) | PU1( PD4) | \
+			 PU1( PD3) | PU1( PD2) | PU1( PD1) | PU1( PD0))
+
+#elif defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USB1286__)
+
+#define PDPU		(PU1( PD7) | _B1( PD6) | PU1( PD5) | PU1( PD4) | \
+			 PU1( PD3) | PU1( PD2) | PU1( PD1) | PU1( PD0))
+#endif
+
+#define DDD		(DDI(DDD7) | DDO(DDD6) | DDI(DDD5) | DDI(DDD4) | \
+			 DDI(DDD3) | DDI(DDD2) | DDI(DDD1) | DDI(DDD0))
+// Ports A,C,E,F
 
 #if defined(__AVR_AT90USBX2__)
 
@@ -85,20 +121,10 @@
 #define DDC		(DDI(DDC7) | DDI(DDC6) | DDI(DDC5) | DDI(DDC4) | \
 			             DDI(DDC2) | DDI(DDC1) | DDI(DDC0))
 
-#define PDPU		(PU0( PD7) | _B0( PD6) | PU1( PD5) | PU1( PD4) | \
-			 PU1( PD3) | PU1( PD2) | PU1( PD1) | PU1( PD0))
-#define DDD		(DDI(DDD7) | DDO(DDD6) | DDI(DDD5) | DDI(DDD4) | \
-			 DDI(DDD3) | DDI(DDD2) | DDI(DDD1) | DDI(DDD0))
-
 #elif defined(__AVR_ATmegaXU4__)
 
 #define PCPU		(PU1( PC7) | PU1( PC6))
 #define DDC		(DDI(DDC7) | DDI(DDC6))
-
-#define PDPU		(PU1( PD7) | _B1( PD6) | PU1( PD5) | PU1( PD4) | \
-			 PU1( PD3) | PU1( PD2) | PU1( PD1) | PU1( PD0))
-#define DDD		(DDI(DDD7) | DDO(DDD6) | DDI(DDD5) | DDI(DDD4) | \
-			 DDI(DDD3) | DDI(DDD2) | DDI(DDD1) | DDI(DDD0))
 
 #define PEPU		(PU1( PE6) | PU0( PE2))
 #define DDE		(DDI(DDE6) | DDI(DDE2))
@@ -118,6 +144,24 @@
 			 _B1(ADIE ) | _B1(ADPS2) | _B1(ADPS1) | _B1(ADPS0))
  #endif
 
+#elif defined(__AVR_AT90USBX6__)
+
+#define PAPU		(PU1( PA7) | PU1( PA6) | PU1( PA5) | PU1( PA4) | \
+			 PU1( PA3) | PU1( PA2) | PU1( PA1) | PU1( PA0))
+#define DDA		(DDI(DDA7) | DDI(DDA6) | DDI(DDA5) | DDI(DDA4) | \
+			 DDI(DDA3) | DDI(DDA2) | DDI(DDA1) | DDI(DDA0))
+#define PCPU		(PU1( PC7) | PU1( PC6) | PU1( PC5) | PU1( PC4) | \
+			 PU1( PC3) | PU1( PC2) | PU1( PC1) | PU1( PC0))
+#define DDC		(DDI(DDC7) | DDI(DDC6) | DDI(DDC5) | DDI(DDC4) | \
+			 DDI(DDC3) | DDI(DDC2) | DDI(DDC1) | DDI(DDC0))
+#define PEPU		(PU1( PE7) | PU1( PE6) | PU1( PE5) | PU1( PE4) | \
+			 PU1( PE3) | PU1( PE2) | PU1( PE1) | PU1( PE0))
+#define DDE		(DDI(DDE7) | DDI(DDE6) | DDI(DDE5) | DDI(DDE4) | \
+			 DDI(DDE3) | DDI(DDE2) | DDI(DDE1) | DDI(DDE0))
+#define PFPU		(PU1( PF7) | PU1( PF6) | PU1( PF5) | PU1( PF4) | \
+			 PU1( PF3) | PU1( PF2) | PU1( PF1) | PU1( PF0))
+#define DDF		(DDI(DDF7) | DDI(DDF6) | DDI(DDF5) | DDI(DDF4) | \
+			 DDI(DDF3) | DDI(DDF2) | DDI(DDF1) | DDI(DDF0))
 #endif
 
 #define	dis3DP_INT()	clr_bit( EIMSK, INT0 )
@@ -504,7 +548,7 @@ void FA_NAKED( init_hw ) ( void )
     PRR0  = _BV( PRSPI ) ;			// SPI
     PRR1  = _BV( PRUSART1 ) ;			// USART1
 
-  #elif defined(__AVR_AT90USB646__)
+  #elif defined(__AVR_AT90USBX6__)
 
     PRR0 =					// TWI, Tim2, SPI, ADC
 	_BV( PRTWI ) | _BV( PRTIM2 ) | _BV( PRSPI ) | _BV( ADC ) ;
@@ -521,6 +565,12 @@ void FA_NAKED( init_hw ) ( void )
 
     // Initialize ports
 
+  #if defined(__AVR_AT90USBX6__)
+
+    DDRA  = DDA ;
+    PORTA = PAPU ;
+  #endif
+
     DDRB  = DDB ;
     PORTB = PBPU ;
     DDRC  = DDC ;
@@ -528,7 +578,7 @@ void FA_NAKED( init_hw ) ( void )
     DDRD  = DDD ;
     PORTD = PDPU ;
 
-  #if defined(__AVR_ATmegaXU4__)
+  #if defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USBX6__)
 
     DDRE  = DDE ;
     PORTE = PEPU ;

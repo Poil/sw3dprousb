@@ -3,8 +3,8 @@
  * Project	: 3DP-Vert, Microsoft Sidewinder 3D Pro/PP/FFP to USB converter
  * Date		: 2005/05/31, 2006/12/14, 2008/02/12, 2009/06/16
  * Version	: 4.0
- * Target MCU	: AT90USB162/AT90USB82, ATMEGA16U4/ATMEGA32U4
- * Tool Chain	: Atmel AVR Studio 4.17 666 / WinAVR 20090313
+ * Target MCU	: AT90USB162/82, AT90USB646/1286, ATMEGA16U4/32U4
+ * Tool Chain	: Atmel AVR Studio 4.18 716 / WinAVR 20100110
  * Author	: Detlef "Grendel" Mueller
  *		  detlef@gmail.com
  * Release Notes:
@@ -209,12 +209,12 @@
 //-------------------------------------------------------------------------------
 // Inline code
 
-#if defined(__AVR_AT90USBX2__)
+#if defined(__AVR_AT90USBX2__) || defined(__AVR_AT90USB646__)
 
 #define	LED_on()	clr_bit( LEDPORT, LEDBIT )
 #define	LED_off()	set_bit( LEDPORT, LEDBIT )
 
-#elif defined(__AVR_ATmegaXU4__)
+#elif defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USB1286__)
 
 #define	LED_on()	set_bit( LEDPORT, LEDBIT )
 #define	LED_off()	clr_bit( LEDPORT, LEDBIT )

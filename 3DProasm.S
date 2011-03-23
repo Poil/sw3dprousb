@@ -16,29 +16,13 @@
 ;*
 ;* Release Notes:
 ;*
-;*	Pinout AT90USBX2
-;*	================
+;*	Joystick button mapping
+;*	=======================
 ;*
-;*	PB0	--	PC0	(XTAL2)	 PD0	Button1
-;*	PB1	(SCLK)	PC1	(/RESET) PD1	Button2
-;*	PB2	(MOSI)	PC2	--	 PD2	Button3
-;*	PB3	(MISO)			 PD3	Button4
-;*	PB4	--	PC4	--	 PD4	X1 axis
-;*	PB5	--	PC5	--	 PD5	Y2 axis
-;*	PB6	--	PC6	--	 PD6	LED
-;*	PB7	--	PC7	--	 PD7	(HWB)
-;*
-;*	Pinout ATMEGAXU4
-;*	================
-;*
-;*	PB0	--			PD0	Button1			PF0	--
-;*	PB1	--			PD1	Button2			PF1	--
-;*	PB2	--			PD2	Button3	PE2	--
-;*	PB3	--			PD3	Button4
-;*	PB4	X1 axis			PD4	--			PF4	--
-;*	PB5	Y2 axis			PD5	--			PF5	--
-;*	PB6	--	PC6	--	PD6	LED	PE6	--	PF6	--
-;*	PB7	--	PC7	--	PD7	--			PF7	--
+;*	B1 - PD0
+;*	B2 - PD1
+;*	B3 - PD2
+;*	B4 - PD3
 ;*
 ;*	3D Pro data packet structure (64bit)
 ;*	====================================
