@@ -10,23 +10,6 @@
  * Release Notes:
  *
  * $Id: usb_hid.h 1.5 2009/10/26 07:34:30 Detlef Exp Detlef $
- *
- * $Log: usb_hid.h $
- * Revision 1.5  2009/10/26 07:34:30  Detlef
- * Using prog_* or PROGMEM instead of VA_PROGMEM().
- *
- * Revision 1.4  2009/10/26 06:39:57  Detlef
- * Removed HID_IDLE switch, we always want it
- *
- * Revision 1.3  2009/10/26 06:32:46  Detlef
- * Added Mega32U4 support (Teensy 2.0)
- *
- * Revision 1.2  2009/09/29 03:39:49  Detlef
- * Some cleanup.
- *
- * Revision 1.1  2009/07/10 07:04:38  Detlef
- * Initial revision
- *
  ******************************************************************************/
 
 #ifndef __usb_hid_h__

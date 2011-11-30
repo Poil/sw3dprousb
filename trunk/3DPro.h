@@ -10,26 +10,6 @@
  * Release Notes:
  *
  * $Id: 3DPro.h 1.6 2010/04/23 05:28:59 Detlef Exp Detlef $
- *
- * $Log: 3DPro.h $
- * Revision 1.6  2010/04/23 05:28:59  Detlef
- * Some cleanup.
- *
- * Revision 1.5  2009/10/26 06:39:57  Detlef
- * Removed HID_IDLE switch, we always want it
- *
- * Revision 1.4  2009/10/26 06:32:46  Detlef
- * Added Mega32U4 support (Teensy 2.0)
- *
- * Revision 1.3  2009/09/29 03:35:16  Detlef
- * Made sw_reportsz global.
- *
- * Revision 1.2  2009/07/23 10:27:23  Detlef
- * Added HID_PHYS, SetTMPS.
- *
- * Revision 1.1  2009/07/10 07:04:38  Detlef
- * Initial revision
- *
  ******************************************************************************/
 
 #ifndef	_3DPRO_H_
@@ -41,33 +21,8 @@
 
 //-------------------------------------------------------------------------------
 
-#define	COMPDEV		0		/* Experimental composite device	*/
-#define	SIXAXIS		0		/* Experimental joystick as POV		*/
 #define	HID_PHYS	1		/* Physical min/max in HID report	*/
 					/* (W98 actually needs these...)	*/
-#if SIXAXIS
- #if COMPDEV
-   #error "COMPDEV and SIXAXIS can't be active at the same time"
- #endif
- #if F_CPU != 12000000
-  #error "SIXAXIS still needs a 12MHz crystal (iADCSRA)"
- #endif
- #if SIXAXIS > 1
-  #error "SIXAXIS can only be 0 or 1"
- #endif
-#endif
-
-#if COMPDEV > 1
- #error "COMPDEV can only be 0 or 1"
-#endif
-
-#if COMPDEV
- #error "COMPDEV code not ported yet"
-#endif
-
-#if SIXAXIS
- #error "SIXAXIS code not ported yet"
-#endif
 
 //-------------------------------------------------------------------------------
 // SideWinder packet sizes
@@ -199,8 +154,8 @@
 
 //-------------------------------------------------------------------------------
 
-#define	SW_REPSZ_3DP	(7+COMPDEV+SIXAXIS)	/* report size for 3DP */
-#define	SW_REPSZ_FFP	(6+COMPDEV)		/* report size for PP/FFP */
+#define	SW_REPSZ_3DP	7			/* report size for 3DP */
+#define	SW_REPSZ_FFP	6			/* report size for PP/FFP */
 
 #define	SW_ID_3DP	1			/* 3DP connected */
 #define	SW_ID_PP	2			/*  PP connected */
@@ -235,7 +190,7 @@ extern uint8_t
 
 extern uint8_t
     sw_id,				// Will be SW_ID_...
-    sw_report[7+COMPDEV+SIXAXIS],	// Report buffer
+    sw_report[SW_REPSZ_3DP],		// Report buffer
     sw_reportsz ;			// Size of report in bytes
 
 extern void

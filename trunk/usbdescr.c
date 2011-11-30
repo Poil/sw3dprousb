@@ -14,30 +14,6 @@
  * Release Notes:
  *
  * $Id: usbdescr.c 1.7 2010/04/23 05:33:41 Detlef Exp Detlef $
- *
- * $Log: usbdescr.c $
- * Revision 1.7  2010/04/23 05:33:41  Detlef
- * Some cleanup.
- *
- * Revision 1.6  2009/10/27 09:20:38  Detlef
- * Added const qualifiers
- *
- * Revision 1.5  2009/10/26 07:34:30  Detlef
- * Using prog_* or PROGMEM instead of VA_PROGMEM().
- *
- * Revision 1.4  2009/10/26 06:32:46  Detlef
- * Added Mega32U4 support (Teensy 2.0)
- *
- * Revision 1.3  2009/09/29 03:38:40  Detlef
- * Some cleanup.
- *
- * Revision 1.2  2009/07/23 10:32:10  Detlef
- * Added HID_PHYS macro - if defined > 0, include physical attributes
- * in the HID report descriptor, else omit them.
- *
- * Revision 1.1  2009/07/10 07:04:38  Detlef
- * Initial revision
- *
  ******************************************************************************/
 
 #include "3DPro.h"
@@ -52,9 +28,6 @@ const prog_uint8_t
 	0x05,0x01,		// USAGE_PAGE (Generic Desktop)
 	0x09,0x04,		// USAGE (Joystick)
 	0xA1,0x01,		// COLLECTION (Application)
-#if COMPDEV
-	0x85, 0x01,		//   Report Id (1)
-#endif
 	0x09,0x01,		//   USAGE (Pointer)
 	0xA1,0x00,		//   COLLECTION (Physical)
 	0x95,0x02,		//     REPORT_COUNT (2)
@@ -69,17 +42,6 @@ const prog_uint8_t
 	0x09,0x30,		//     USAGE (X)
 	0x09,0x31,		//     USAGE (Y)
 	0x81,0x02,		//     INPUT (Data,Var,Abs)             20b X/Y
-#if SIXAXIS
-	0x75,0x08,		//     REPORT_SIZE (8)
-	0x15,0x80,		//     LOGICAL_MINIMUM (-128)
-	0x25,0x7F,		//     LOGICAL_MAXIMUM (127)
-#if HID_PHYS
-	0x46,0xFF,0x00,		//     PHYSICAL_MAXIMUM (255)				-3 SIX
-#endif
-	0x09,0x33,		//     USAGE (Rx)
-	0x09,0x34,		//     USAGE (Ry)
-	0x81,0x02,		//     INPUT (Data,Var,Abs)             16b Rx/Ry	+15 bytes
-#endif
 	0x95,0x01,		//     REPORT_COUNT (1)
 	0x75,0x09,		//     REPORT_SIZE (9)
 	0x16,0x00,0xFF,		//     LOGICAL_MINIMUM (-256)
@@ -90,7 +52,6 @@ const prog_uint8_t
 #endif
 	0x09,0x35,		//     USAGE (Rz)
 	0x81,0x02,		//     INPUT (Data,Var,Abs)              9b Rz
-#if ! SIXAXIS
 	0x75,0x04,		//     REPORT_SIZE (4)
 	0x15,0x00,		//     LOGICAL_MINIMUM (0)
 	0x25,0x07,		//     LOGICAL_MAXIMUM (7)
@@ -99,12 +60,8 @@ const prog_uint8_t
 #endif
 	0x09,0x39,		//     USAGE (Hat switch)
 	0x81,0x42,		//     INPUT (Data,Var,Abs,Null)         4b Hat		-13 bytes
-#endif
 	0x95,0x04,		//     REPORT_COUNT (4)
 	0x75,0x01,		//     REPORT_SIZE (1)
-#if SIXAXIS
-	0x15,0x00,		//     LOGICAL_MINIMUM (0)				 +2 bytes
-#endif
 	0x25,0x01,		//     LOGICAL_MAXIMUM (1)
 #if HID_PHYS
 	0x45,0x01,		//     PHYSICAL_MAXIMUM (1)				-2
@@ -122,36 +79,9 @@ const prog_uint8_t
 	0x95,0x01,		//   REPORT_COUNT (1)
 	0x09,0x36,		//   USAGE (Slider)
 	0x81,0x02,		//   INPUT (Data,Var,Abs)               10b Throttle
-#if SIXAXIS
-	0x75,0x01,		//   REPORT_SIZE (1)			 1b Fill
-#else
 	0x75,0x05,		//   REPORT_SIZE (5)			 5b Fill
-#endif
 	0x81,0x01,		//   INPUT (Cnst,Ary,Abs)
 	0xC0			// END_COLLECTION                       56b -> 7bytes, 8 bytes for SIXAXIS
-
-#if COMPDEV
-	,
-	0x05, 0x01,		// USAGE_PAGE (Generic Desktop)
-	0x09, 0x06,		// USAGE (Keyboard)
-	0xA1, 0x01,		// COLLECTION (Application)
-	0x85, 0x02,		//   Report Id (2)
-	0x05, 0x07,		//   USAGE_PAGE (Keyboard)
-	0x19, 0xE0,		//   USAGE_MINIMUM (Keyboard LeftControl)
-	0x29, 0xE7,		//   USAGE_MAXIMUM (Keyboard Right GUI)
-	0x15, 0x00,		//   LOGICAL_MINIMUM (0)
-	0x25, 0x01,		//   LOGICAL_MAXIMUM (1)
-	0x75, 0x01,		//   REPORT_SIZE (1)
-	0x95, 0x08,		//   REPORT_COUNT (8)
-	0x81, 0x02,		//   INPUT (Data,Var,Abs)
-	0x95, 0x02,		//   REPORT_COUNT (2)
-	0x75, 0x08,		//   REPORT_SIZE (8)
-	0x25, 0x65,		//   LOGICAL_MAXIMUM (101)
-	0x19, 0x00,		//   USAGE_MINIMUM (Reserved (no event indicated))
-	0x29, 0x65,		//   USAGE_MAXIMUM (Keyboard Application)
-	0x81, 0x00,		//   INPUT (Data,Ary,Abs)
-	0xC0			// END_COLLECTION
-#endif // COMPDEV
     } ;
 
 //------------------------------------------------------------------------------
@@ -162,9 +92,6 @@ const prog_uint8_t
 	0x05, 0x01,		// USAGE_PAGE (Generic Desktop)
 	0x09, 0x04,		// USAGE (Joystick)
 	0xA1, 0x01,		// COLLECTION (Application)
-#if COMPDEV
-	0x85, 0x01,		//  Report Id (1)
-#endif
 	0x09, 0x01,		//  USAGE (Pointer)
 	0xA1, 0x00,		//   COLLECTION (Physical)
 	0x95, 0x02,		//     REPORT_COUNT (2)
@@ -227,29 +154,6 @@ const prog_uint8_t
 	0x75, 0x02,		//   REPORT_SIZE (2)
 	0x81, 0x01,		//   INPUT (Cnst,Ary,Abs)		 2b Fill
 	0xC0			// END_COLLECTION			48b -> 6bytes
-
-#if COMPDEV
-	,
-	0x05, 0x01,		// USAGE_PAGE (Generic Desktop)
-	0x09, 0x06,		// USAGE (Keyboard)
-	0xA1, 0x01,		// COLLECTION (Application)
-	0x85, 0x02,		//   Report Id (2)
-	0x05, 0x07,		//   USAGE_PAGE (Keyboard)
-	0x19, 0xE0,		//   USAGE_MINIMUM (Keyboard LeftControl)
-	0x29, 0xE7,		//   USAGE_MAXIMUM (Keyboard Right GUI)
-	0x15, 0x00,		//   LOGICAL_MINIMUM (0)
-	0x25, 0x01,		//   LOGICAL_MAXIMUM (1)
-	0x75, 0x01,		//   REPORT_SIZE (1)
-	0x95, 0x08,		//   REPORT_COUNT (8)
-	0x81, 0x02,		//   INPUT (Data,Var,Abs)
-	0x95, 0x02,		//   REPORT_COUNT (2)
-	0x75, 0x08,		//   REPORT_SIZE (8)
-	0x25, 0x65,		//   LOGICAL_MAXIMUM (101)
-	0x19, 0x00,		//   USAGE_MINIMUM (Reserved (no event indicated))
-	0x29, 0x65,		//   USAGE_MAXIMUM (Keyboard Application)
-	0x81, 0x00,		//   INPUT (Data,Ary,Abs)
-	0xC0			// END_COLLECTION
-#endif // COMPDEV
     } ;
 
 //------------------------------------------------------------------------------
@@ -281,11 +185,7 @@ const prog_uint8_t
 	0,			// protocol
 	ENDPOINT0_SIZE,		// EP0 size
 	USB_CFG_MAN_ID,		// manufacturer id
-#if SIXAXIS
-	CFG_DEVICE_ID_6DP,	// device id
-#else
-	CFG_DEVICE_ID_3DP,
-#endif
+	CFG_DEVICE_ID_3DP,	// device id
 	USB_CFG_DEVICE_VERSION,	// device version
 	USB_STR_IDX_MAN,	// manufacturer string index
 	USB_STR_IDX_3DP,	// product string index

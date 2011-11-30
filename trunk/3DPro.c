@@ -52,26 +52,6 @@
  *	PA7	--	PB7	--	PC7	--	PD7	--	PE7	--	PF7	--
  *
  * $Id: 3DPro.c 1.6 2010/04/23 05:27:52 Detlef Exp Detlef $
- *
- * $Log: 3DPro.c $
- * Revision 1.6  2010/04/23 05:27:52  Detlef
- * Some cleanup, added code to invalidate serial no. in EEPROM (inactive)
- *
- * Revision 1.5  2009/10/26 06:39:57  Detlef
- * Removed HID_IDLE switch, we always want it
- *
- * Revision 1.4  2009/10/26 06:32:46  Detlef
- * Added Mega32U4 support (Teensy 2.0)
- *
- * Revision 1.3  2009/09/29 03:34:44  Detlef
- * Optimized init_hw(), some cleanup.
- *
- * Revision 1.2  2009/07/23 10:28:10  Detlef
- * Corrected pin out diagram. Added use of SetTMPS macro.
- *
- * Revision 1.1  2009/07/10 07:04:38  Detlef
- * Initial revision
- *
  ******************************************************************************/
 
 #include "3DPro.h"
@@ -181,19 +161,11 @@
 
 uint8_t
     sw_id,					// ID of detected stick
-    sw_report[7+COMPDEV+SIXAXIS] ;		// USB report data
+    sw_report[SW_REPSZ_3DP] ;			// USB report data
 
 static uint8_t
     sw_buttons,					// button buffer
     sw_problem ;				// problem counter
-
-#if SIXAXIS
-
-static uint16_t
-    AcntrX,					// Analog center X
-    AcntrY ;					// Analog center Y
-
-#endif
 
 //------------------------------------------------------------------------------
 //******************************************************************************
@@ -452,86 +424,6 @@ static void FA_NORETURN( reboot ) ( void )
 
 //------------------------------------------------------------------------------
 
-#if SIXAXIS
-
-// Need the ADC ISR handler for wakeup from sleep.
-
-EMPTY_INTERRUPT( ADC_vect ) 
-
-//------------------------------------------------------------------------------
-
-#define	ADC_RX		0x00
-#define	ADC_RY		0x01
-
-#define	ADC_CRX		0x10
-#define	ADC_CRY		0x11
-
-static void ReadADC ( uint8_t chan )
-{
-    uint8_t
-	adc8 ;
-    uint16_t
-	adc16 ;
-
-    if ( chan & 0x01 )
-	set_bit( ADMUX, MUX0 ) ;		// select channel 3, Ry
-    else
-	clr_bit( ADMUX, MUX0 ) ;		// select channel 2, Rx
-
-    do
-	SLEEP() ;				// ADCNR/IDLE sleep, starts conv.
-    while ( bit_is_set( ADCSRA, ADSC ) )
-
-    adc16 = ADC ;				// Read A value, left adj. (!)
-
-    switch ( chan )
-    {
-	case ADC_RX :
-	    if ( adc16 >= AcntrX )
-		adc8 = -((adc16 - AcntrX) >> 8) ;
-	    else
-	    {
-		adc8 = (AcntrX - adc16) >> 8 ;
-
-		if ( adc8 > 0x7F )
-		    adc8 = 0x7F ;
-	    }
-
-	    sw_report[2] = (sw_report[2] & 0x0F) | (adc8 << 4) ;
-	    sw_report[3] = (sw_report[3] & 0xF0) | (adc8 >> 4) ;
-
-	    break ;
-
-	case ADC_RY :
-	    if ( adc16 >= AcntrY )
-		adc8 = -((adc16 - AcntrY) >> 8) ;
-	    else
-	    {
-		adc8 = (AcntrY - adc16) >> 8 ;
-
-		if ( adc8 > 0x7F )
-		    adc8 = 0x7F ;
-	    }
-
-	    sw_report[3] = (sw_report[3] & 0x0F) | (adc8 << 4) ;
-	    sw_report[4] = (sw_report[4] & 0xF0) | (adc8 >> 4) ;
-
-	    break ;
-
-	case ADC_CRX :			// center Rx
-	    AcntrX = adc16 ;
-	    break ;
-
-	case ADC_CRY :			// center Ry
-	    AcntrY = adc16 ;
-	    break ;
-    }
-}
-
-#endif
-
-//------------------------------------------------------------------------------
-
 // Initialize the hardware
 //
 // init_hw() is called only once, first thing in main(),
@@ -599,10 +491,8 @@ void FA_NAKED( init_hw ) ( void )
 
     Delay_1024( T0DEL200MS ) ;			// Allow the stick to boot
 
-#if DEAD_CODE
-    if ( ClrSerial() )				// Clear serial no. condition met ?
-	eeprom_write_byte( NULL, 0xFF ) ;	// Invalidate serial no.
-#endif
+//    if ( ClrSerial() )				// Clear serial no. condition met ?
+//	eeprom_write_byte( NULL, 0xFF ) ;	// Invalidate serial no.
 
     for ( ;; )					// Forever..
     {
@@ -626,34 +516,7 @@ void FA_NAKED( init_hw ) ( void )
 	}
 	else
 	if ( Init3DPro() )			// Check for 3DP
-	{					// found 3DP
-	  #if SIXAXIS
-
-	    clr_bit( PRR0, ADC ) ;		// power up ADC
-
-	    // Re-enable DIDR1 ? What about DIDR0 and 2 ?
-
- 	    SMCR =				// Set sleep mode to ADCNRM, enable sleep
-		_B0(SM2) | _B0(SM1) | _B1(SM0) | _B1(SE) ;
-
-	    Delay_1024( T0DEL4MS ) ;		// Wait for all activity to stop
-
-	    // Turn off analog pin pull-up's (?)
-	    clr_bits( PORTC, _B1( PC3) | _B1( PC2) ) ;
-
-	    ADMUX  = iADMUX ;	 		// Initialize ADC for Rx/Ry
-	    ADCSRA = iADCSRA ;
-
-	    ReadADC( ADC_CRX ) ;		// Start up ADC, read AcntrX
-	    ReadADC( ADC_CRY ) ;		// Read AcntrY
-
-//	    if ( sw_packet1[3] & 0x20 )		// B9 in pos. II, could sig. calibrate
-//	    {
-//	    }
-	  #endif
-
-	    break ;				// break forever
-	}
+	    break ;				// found 3DP, break forever
 
 	dis3DP_INT() ;
     }
@@ -676,23 +539,6 @@ static void patchbutt ( void )
     uint8_t
 	b = sw_buttons ;
 
-  #if SIXAXIS
-
-    __asm__ __volatile__
-    (
-	"com	%0		\n\t"
-	"lsl	%0		\n\t"
-	"swap	%0		\n\t"
-	"andi	%0,0b11100001	\n\t"
-	: "+r" (b) : "0" (b) : "cc"
-    ) ;
-
-    // Patch buttons into report data
-
-    sw_report[5] = (sw_report[5] & 0x1F) | (b & 0xE0) ;
-    sw_report[6] = (sw_report[6] & 0xFE) | (b & 0x01) ;
-  #else
-
     __asm__ __volatile__
     (
 	"com	%0		\n\t"
@@ -703,8 +549,7 @@ static void patchbutt ( void )
 
     // Patch buttons into report data
 
-    sw_report[4+COMPDEV] = (sw_report[4+COMPDEV] & 0xE1) | b ;
-  #endif
+    sw_report[4] = (sw_report[4] & 0xE1) | b ;
 }
 
 //------------------------------------------------------------------------------
@@ -718,11 +563,6 @@ void getdata ( void )
 
     if ( sw_id == SW_ID_3DP )
     {
-      #if SIXAXIS
-	ReadADC( ADC_RX ) ;			// Read Rx
-	ReadADC( ADC_RY ) ;			// Read Ry
-      #endif
-
 	sw_buttons = BUTPIN ;			// Save current button data
 
 	i = Query3DP( 0, DATSZ3DP ) ;		// Query 3DP
