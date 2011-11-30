@@ -10,23 +10,6 @@
  * Release Notes:
  *
  * $Id: includes.h 1.5 2010/04/23 05:30:16 Detlef Exp Detlef $
- *
- * $Log: includes.h $
- * Revision 1.5  2010/04/23 05:30:16  Detlef
- * Added type attribute macro TA_PROGMEM().
- *
- * Revision 1.4  2009/10/27 09:18:49  Detlef
- * Added NOP()
- *
- * Revision 1.3  2009/10/26 06:32:46  Detlef
- * Added Mega32U4 support (Teensy 2.0)
- *
- * Revision 1.2  2009/09/29 03:37:19  Detlef
- * Some cleanup, added VP().
- *
- * Revision 1.1  2009/07/10 07:04:38  Detlef
- * Initial revision
- *
  ******************************************************************************/
 
 #ifndef	__includes_h__

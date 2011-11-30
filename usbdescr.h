@@ -10,30 +10,6 @@
  * Release Notes:
  *
  * $Id: usbdescr.h 1.7 2010/04/23 05:34:15 Detlef Exp Detlef $
- *
- * $Log: usbdescr.h $
- * Revision 1.7  2010/04/23 05:34:15  Detlef
- * Added USB_STR_SZ(), some cleanup.
- *
- * Revision 1.6  2009/10/27 09:20:38  Detlef
- * Added const qualifiers
- *
- * Revision 1.5  2009/10/26 07:34:30  Detlef
- * Using prog_* or PROGMEM instead of VA_PROGMEM().
- *
- * Revision 1.4  2009/10/26 06:32:46  Detlef
- * Added Mega32U4 support (Teensy 2.0)
- *
- * Revision 1.3  2009/09/29 03:38:58  Detlef
- * Some cleanup.
- *
- * Revision 1.2  2009/07/23 10:32:10  Detlef
- * Added HID_PHYS macro - if defined > 0, include physical attributes
- * in the HID report descriptor, else omit them.
- *
- * Revision 1.1  2009/07/10 07:04:38  Detlef
- * Initial revision
- *
  ******************************************************************************/
 
 #ifndef	_USBDESCR_H_
@@ -54,7 +30,6 @@
 #define CFG_DEVICE_ID_3DP	LVAL( 0x0002 )
 #define CFG_DEVICE_ID_PP	LVAL( 0x0004 )
 #define CFG_DEVICE_ID_FFP	LVAL( 0x0005 )
-#define CFG_DEVICE_ID_6DP	LVAL( 0xBEEF )
 
 #define USB_CFG_DEVICE_VERSION	LVAL( 0x0400 )		/* 4.00 */
 
@@ -75,8 +50,8 @@
 
 //------------------------------------------------------------------------------
 
-#define CFG_HID_REPORT_DESC_SZ_3DP (84 + HID_PHYS * 16 + COMPDEV * 39 + SIXAXIS * 4)
-#define CFG_HID_REPORT_DESC_SZ_FFP (92 + HID_PHYS * 18 + COMPDEV * 39)	/* PP, FFP */
+#define CFG_HID_REPORT_DESC_SZ_3DP (84 + HID_PHYS * 16)
+#define CFG_HID_REPORT_DESC_SZ_FFP (92 + HID_PHYS * 18)	/* PP, FFP */
 
 //------------------------------------------------------------------------------
 
@@ -95,7 +70,7 @@
 
 #define CFG_STR_DEV_3DP		'M','i','c','r','o','s','o','f','t',' ', \
 				'S','i','d','e','W','i','n','d','e','r',' ', \
-				'3' + SIXAXIS * 3,'D',' ','P','r','o',' ', \
+				'3','D',' ','P','r','o',' ', \
 				'(','U','S','B',')'
 #define CFG_STR_DEV_3DP_SZ	33
 

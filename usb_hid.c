@@ -11,29 +11,6 @@
  * Release Notes: Extremly simplyfied chapter 9 implementation.
  *
  * $Id: usb_hid.c 1.7 2010/04/23 05:35:08 Detlef Exp Detlef $
- *
- * $Log: usb_hid.c $
- * Revision 1.7  2010/04/23 05:35:08  Detlef
- * Some cleanup.
- *
- * Revision 1.6  2009/10/27 09:22:47  Detlef
- * The serial no. descriptor is now stored in EEPROM.
- *
- * Revision 1.5  2009/10/26 07:34:30  Detlef
- * Using prog_* or PROGMEM instead of VA_PROGMEM().
- *
- * Revision 1.4  2009/10/26 06:39:57  Detlef
- * Removed HID_IDLE switch, we always want it
- *
- * Revision 1.3  2009/10/26 06:32:46  Detlef
- * Added Mega32U4 support (Teensy 2.0)
- *
- * Revision 1.2  2009/09/29 03:39:24  Detlef
- * Some cleanup.
- *
- * Revision 1.1  2009/07/10 07:04:38  Detlef
- * Initial revision
- *
  ******************************************************************************/
 
 #include "3DPro.h"
