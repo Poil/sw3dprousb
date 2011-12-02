@@ -81,7 +81,7 @@ const prog_uint8_t
 	0x81,0x02,		//   INPUT (Data,Var,Abs)               10b Throttle
 	0x75,0x05,		//   REPORT_SIZE (5)			 5b Fill
 	0x81,0x01,		//   INPUT (Cnst,Ary,Abs)
-	0xC0			// END_COLLECTION                       56b -> 7bytes, 8 bytes for SIXAXIS
+	0xC0			// END_COLLECTION                       56b -> 7bytes
     } ;
 
 //------------------------------------------------------------------------------

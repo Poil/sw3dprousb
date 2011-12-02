@@ -113,17 +113,6 @@
 						 PU1( PF1) | PU1( PF0))
 #define DDF		(DDI(DDF7) | DDI(DDF6) | DDI(DDF5) | DDI(DDF4) | \
 						 DDI(DDF1) | DDI(DDF0))
-
- #if SIXAXIS
- 			// AVcc w/ cap on AREF, left adjust result, select channel 2
-  #define iADMUX	(_B0(REFS1) | _B1(REFS0) | _B1(ADLAR) | _B0(MUX4) |\
-			 _B0(MUX3 ) | _B0(MUX2 ) | _B1(MUX1 ) | _B0(MUX0))
-			// Enable ADC, disable free running, clr IF,
-			// enable IRQ, set prescaler to 128 --> 125000Hz @ 16MHz
-  #define iADCSRA	(_B1(ADEN ) | _B0(ADSC ) | _B0(ADATE) | _B1(ADIF ) | \
-			 _B1(ADIE ) | _B1(ADPS2) | _B1(ADPS1) | _B1(ADPS0))
- #endif
-
 #elif defined(__AVR_AT90USBX6__)
 
 #define PAPU		(PU1( PA7) | PU1( PA6) | PU1( PA5) | PU1( PA4) | \
