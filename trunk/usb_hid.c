@@ -559,14 +559,7 @@ ISR( USB_COM_vect )
 	    // type shoud be "input" (3), id should be 0 or 1/2
 	    // wLength should match sizeof( hid_report )
 
-	  #if COMPDEV
-	    if ( (wValue & 0xFF) == 1 )
-		usb_send_EP0( VP( sw_report ), sw_reportsz, IN_RAM ) ;
-	    else
-		usb_send_EP0( VP( kb_report ), sizeof( kb_report ), IN_RAM ) ;
-	  #else
 	    usb_send_EP0( VP( sw_report ), sw_reportsz, IN_RAM ) ;
-	  #endif
 
 	    return ;
 	}
