@@ -22,7 +22,7 @@
 //------------------------------------------------------------------------------
 // Delay until reading stick after last report was sent
 
- #define READ_DEL	MS2TM( 4.5, 1024 )
+ #define READ_DEL	MS2TM( 3, 1024 )
  #define IDLE_DEL	MS2TM( 4  , 64 )
 
 //------------------------------------------------------------------------------
