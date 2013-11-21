@@ -21,42 +21,26 @@ extern void
     usb_init( void ) ;			// Initialize USB module
 
 extern uint8_t
+    usb_configured( void ) ;		// Check if USB is active
+
+extern uint8_t
     usb_IN_busy( void ) ;		// Check if IN pipe is busy
 
 extern uint8_t				// Send data via IN pipe
     usb_send_IN( uint8_t *data, uint8_t len ) ;
 
+//------------------------------------------------------------------------------
+
 extern volatile uint8_t
-    usb_configuration ;			// Selected USB configuration,
-					// 1 if enumerated, else 0
-
-//------------------------------------------------------------------------------
-// USB descriptor constants
-
-#define USBDESCR_DEVICE		1
-#define USBDESCR_CONFIG		2
-#define USBDESCR_STRING		3
-#define USBDESCR_INTERFACE	4
-#define USBDESCR_ENDPOINT	5
-#define USBDESCR_HID		0x21
-#define USBDESCR_HID_REPORT	0x22
-#define USBDESCR_HID_PHYS	0x23
+    usb_configuration,			// Selected USB configuration, 0 if none
+    usb_suspend ;			// Suspended if TRUE
 
 //------------------------------------------------------------------------------
 
-#define USB_CFG_INTR_POLL_INTERVAL 2
+#ifdef __usb_hid__
 
 //------------------------------------------------------------------------------
-
-#define ENDPOINT0_SIZE		64
-
-#define HID_ENDPOINT		1
-#define HIDEP_SIZE		8	/* next up would be 16 */
-
-//------------------------------------------------------------------------------
-
-#ifdef __usb_hid__		// usb_hid.c local defines
-
+// usb_hid.c local defines
 //------------------------------------------------------------------------------
 
 #define	USBLV( h, l )		(((uint16_t)(h) << 8) + (l))
@@ -112,31 +96,31 @@ extern volatile uint8_t
 
 #if defined(__AVR_AT90USBX2__)
 
-#define EP_SIZE( s )	((s) == 64 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B1(EPSIZE0)) : \
-			((s) == 32 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0)) : \
-			((s) == 16 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
-			0x00)))
+#define EP_SIZE( s )	((s) <=   8 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B0(EPSIZE0)) : \
+			((s) <=  16 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
+			((s) <=  32 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0)) : \
+			/* 64 */      (_B0(EPSIZE2) | _B1(EPSIZE1) | _B1(EPSIZE0)))))
 
-#elif defined(__AVR_AT90USBX6__) || defined(__AVR_ATmegaXU4__)
+#elif defined(__AVR_AT90USBX6__) && ! defined(__AVR_ATmegaXU4__)
 
 // 256 & 128 for EP1 only
 
-#define EP_SIZE( s )	((s) == 256 ? (_B1(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
-			((s) == 128 ? (_B1(EPSIZE2) | _B0(EPSIZE1) | _B0(EPSIZE0)) : \
-			((s) ==  64 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B1(EPSIZE0)) : \
-			((s) ==  32 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0)) : \
-			((s) ==  16 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
-			0x00)))))
+#define EP_SIZE( s )	((s) <=   8 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B0(EPSIZE0)) : \
+			((s) <=  16 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
+			((s) <=  32 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0)) : \
+			((s) <=  64 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B1(EPSIZE0)) : \
+			((s) <= 128 ? (_B1(EPSIZE2) | _B0(EPSIZE1) | _B0(EPSIZE0)) : \
+			/* 256 */     (_B1(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)))))))
 
 #elif defined(__AVR_ATmegaXU4__)
 
-#define EP_SIZE( s )	((s) == 512 ? (_B1(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0)) : \
-			((s) == 256 ? (_B1(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
-			((s) == 128 ? (_B1(EPSIZE2) | _B0(EPSIZE1) | _B0(EPSIZE0)) : \
-			((s) ==  64 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B1(EPSIZE0)) : \
-			((s) ==  32 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0)) : \
-			((s) ==  16 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
-			0x00))))))
+#define EP_SIZE( s )	((s) <=   8 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B0(EPSIZE0)) : \
+			((s) <=  16 ? (_B0(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
+			((s) <=  32 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0)) : \
+			((s) <=  64 ? (_B0(EPSIZE2) | _B1(EPSIZE1) | _B1(EPSIZE0)) : \
+			((s) <= 128 ? (_B1(EPSIZE2) | _B0(EPSIZE1) | _B0(EPSIZE0)) : \
+			((s) <= 256 ? (_B1(EPSIZE2) | _B0(EPSIZE1) | _B1(EPSIZE0)) : \
+			/* 512 */     (_B1(EPSIZE2) | _B1(EPSIZE1) | _B0(EPSIZE0))))))))
 #endif
 
 //------------------------------------------------------------------------------
@@ -174,11 +158,18 @@ extern volatile uint8_t
 #define HID_SET_IDLE		10
 #define HID_SET_PROTOCOL	11
 
-#define HIDEP_BUFFER		EP_SINGLE_BUFFER /* EP_DOUBLE_BUFFER */
+#define EP_HID_BUFFER		EP_SINGLE_BUFFER /* EP_DOUBLE_BUFFER */
 
 //------------------------------------------------------------------------------
 
 #endif // __usb_hid__
+
+//------------------------------------------------------------------------------
+
+#define ENDPOINT0_SIZE		64
+
+#define EP_HID			1
+#define EP_HID_SZ		8	/* next up would be 16 */
 
 //------------------------------------------------------------------------------
 

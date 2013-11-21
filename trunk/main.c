@@ -71,6 +71,7 @@ static uint8_t sw_repchg ( void )
 int FA_NORETURN( main ) ( void )
 {
     uint8_t
+	susp,
 	sw_sendrep ;
 
     // Initialize..
@@ -84,19 +85,32 @@ int FA_NORETURN( main ) ( void )
 
     sei() ;					// Enable interrupts
 
-    wdt_enable( WDTO_500MS ) ;			// Unleash watchdog
-
     SetTMPS( 1, 64 ) ;				// Set T1 prescaler to /64
     SetTMPS( 0, 1024 ) ;			// Set T0 prescaler to / 1024 for delay
 
+    susp = TRUE ;
     sw_sendrep = sw_repchg() ;			// Init send report flag, saved report
 
     for ( ;; )					// Forever..
     {
 	wdt_reset() ;				// Calm watchdog
 
-	if ( usb_configuration )
+	if ( usb_configured() )
 	{
+	    if ( susp )				// Coming out of suspend
+	    {
+		susp = FALSE ;
+
+		// Turn things back on
+
+		// Set clock divider to 1, full speed
+		clock_prescale_set( clock_div_1 ) ;
+
+		clr_bits( PRR0, _BV(PRTIM0) | _BV(PRTIM1) ) ;
+
+		wdt_enable( WDTO_500MS ) ;	// Unleash watchdog
+	    }
+
 	    if ( TMexp( 0 ) )			// Time to read the stick
 	    {
 		SetTMPS( 0, 64 ) ;		// Set T0 prescaler to / 64 for query
@@ -128,6 +142,24 @@ int FA_NORETURN( main ) ( void )
 		ResetTM( 1, IDLE_DEL ) ;	// reset idle timer
 
 		LED_off() ;
+	    }
+	}
+	else
+	if ( usb_suspend )
+	{
+	    if ( ! susp )			// Going into suspend
+	    {
+		susp = TRUE ;
+
+		// Shut down things we don't need
+
+		wdt_disable() ;
+
+		set_bits( PRR0, _BV(PRTIM0) | _BV(PRTIM1) ) ;
+
+		// Set clock divider to 2, half speed
+
+		clock_prescale_set( clock_div_2 ) ;
 	    }
 	}
 	else

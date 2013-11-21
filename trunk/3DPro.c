@@ -71,7 +71,6 @@
 			 PU1( PB3) | PU1( PB2) | PU1( PB1) | PU1( PB0))
 #define DDB		(DDI(DDB7) | DDI(DDB6) | DDI(DDB5) | DDI(DDB4) | \
 			 DDI(DDB3) | DDI(DDB2) | DDI(DDB1) | DDI(DDB0))
-
 // Port D
 
 #if defined(__AVR_AT90USBX2__)
@@ -405,6 +404,7 @@ static void FA_NORETURN( reboot ) ( void )
 {
     cli() ;					// Disable interrupts
 
+    UDCON  = _B1(DETACH) ;
     USBCON = _B0(USBE) | _B1(FRZCLK) ;		// Kill USB
 
     for ( ;; )					// Wait for watchdog to bite (.5s)
@@ -467,9 +467,7 @@ void FA_NAKED( init_hw ) ( void )
     PORTF = PFPU ;
   #endif
 
-    CLKPR = _B1(CLKPCE) ;			// Enable clock prescaler change
-    CLKPR =					// Set clock divider to 1, full speed
-	_B0(CLKPS3) | _B0(CLKPS2) | _B0(CLKPS1) | _B0(CLKPS0) ;
+    clock_prescale_set( clock_div_1 ) ;		// Set clock divider to 1, full speed
 
     // Initialize timers
 

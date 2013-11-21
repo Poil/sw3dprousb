@@ -204,7 +204,10 @@ ffp_packet:
         .skip 6,0
 sw_pktstart:
 
-sw_pktptr:				; LSB of -> to current byte in buffer
+sw_pktptr:				; -> to current byte in buffer
+sw_pktptrL:
+	.skip 1,0
+sw_pktptrH:
 	.skip 1,0
 
 sw_clkcnt:				; no. of clock ticks on B1
@@ -235,8 +238,8 @@ INT0_vect:
 	push	XL			; Save XL				2
 	push	XH			; Save XH				2		+4
 
-	ldi	XH,hi8(sw_pktstart)	; Load buffer pointer H	!!!		1		+5
-	lds	XL,sw_pktptr		; Load buffer pointer L			2	+4
+	lds	XH,sw_pktptrH		; Load buffer pointer H			2		+5
+	lds	XL,sw_pktptrL		; Load buffer pointer L			2	+4
 
 	lds	temp0,sw_clkcnt		; Load clkcnt				2		+6
 	mov	temp1,temp0		;					1		+7
@@ -316,7 +319,8 @@ I0case7:				; b7-b5 are right					       5+15=20 +21=41
 	st	X,temp0			; Save to buffer			2
 
 Int0End:
-	sts	sw_pktptr,XL		; Save buffer pointer L			2
+	sts	sw_pktptrL,XL		; Save buffer pointer L			2
+	sts	sw_pktptrH,XH		; Save buffer pointer L			2
 
 	pop	XH			; Restore XH				2		+11
 	pop	XL			; Restore XL				2	+4
@@ -716,7 +720,9 @@ QueryFFP:
 	sts	sw_clkcnt,temp3		; Preset clock counter
 
 	ldi	temp0,lo8(sw_pktstart)	; &ffp_packet[6]
-	sts	sw_pktptr,temp0
+	sts	sw_pktptrL,temp0
+	ldi	temp0,hi8(sw_pktstart)	; &ffp_packet[6]
+	sts	sw_pktptrH,temp0
 
 	sei				;				1
 
@@ -789,9 +795,16 @@ Query3DP:
 	cli
 	clr	temp0
 	sts	sw_clkcnt,temp0		; Correct SWclkcnt and ptr so the next
-	lds	temp0,sw_pktptr
-	inc	temp0			; packet will allign w/ sw_packet2
-	sts	sw_pktptr,temp0
+
+	lds	temp0,sw_pktptrL
+	lds	temp1,sw_pktptrH
+	ldi	temp2,1
+	add	temp0,temp2
+	clr	temp2
+	adc	temp1,temp2
+	sts	sw_pktptrL,temp0
+	sts	sw_pktptrH,temp1
+
 	sei
 Qexit:
 	ret

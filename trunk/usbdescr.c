@@ -23,7 +23,7 @@
 //------------------------------------------------------------------------------
 
 const prog_uint8_t
-    usbHidReportDesc3DP[] =
+    usbHidRepDesc3DP[] =
     {
 	0x05,0x01,		// USAGE_PAGE (Generic Desktop)
 	0x09,0x04,		// USAGE (Joystick)
@@ -87,7 +87,7 @@ const prog_uint8_t
 //------------------------------------------------------------------------------
 
 const prog_uint8_t
-    usbHidReportDescFFP[] =
+    usbHidRepDescFFP[] =
     {
 	0x05, 0x01,		// USAGE_PAGE (Generic Desktop)
 	0x09, 0x04,		// USAGE (Joystick)
@@ -158,161 +158,194 @@ const prog_uint8_t
 
 //------------------------------------------------------------------------------
 
-const usb_string_descriptor_t
-    usbDescStringLan =
-	{ USB_STR_LAN_SZ,     USBDESCR_STRING, { 0x0409 }          },
-    usbDescStringSer =
-	{ USB_STR_SER_SZ,     USBDESCR_STRING, { CFG_STR_SER }     },
-    usbDescStringMan =
-	{ USB_STR_MAN_SZ,     USBDESCR_STRING, { CFG_STR_MAN }     },
-    usbDescStringDevice3DP =
-	{ USB_STR_DEV_3DP_SZ, USBDESCR_STRING, { CFG_STR_DEV_3DP } },
-    usbDescStringDevicePP =
-	{ USB_STR_DEV_PP_SZ,  USBDESCR_STRING, { CFG_STR_DEV_PP }  },
-    usbDescStringDeviceFFP =
-	{ USB_STR_DEV_FFP_SZ, USBDESCR_STRING, { CFG_STR_DEV_FFP } } ;
+const usb_string_desc_t
+    usbStringDescLan = { USB_STRING_DESC_LAN_SZ, USB_STRING_DESC_TYPE, { USB_STRING_LAN } },
+    usbStringDescMan = { USB_STRING_DESC_MAN_SZ, USB_STRING_DESC_TYPE, { USB_STRING_MAN } },
+    usbStringDescSer = { USB_STRING_DESC_SER_SZ, USB_STRING_DESC_TYPE, { USB_STRING_SER } },
+    usbStringDescPro3DP = { USB_STRING_DESC_PRO_3DP_SZ, USB_STRING_DESC_TYPE, { USB_STRING_PRO_3DP } },
+    usbStringDescProPP  = { USB_STRING_DESC_PRO_PP_SZ,  USB_STRING_DESC_TYPE, { USB_STRING_PRO_PP  } },
+    usbStringDescProFFP = { USB_STRING_DESC_PRO_FFP_SZ, USB_STRING_DESC_TYPE, { USB_STRING_PRO_FFP } } ;
 
 //------------------------------------------------------------------------------
 
-const prog_uint8_t
-    usbDescDevice3DP[] =
-    {				// USB device descriptor
-	18,			// length of descriptor in bytes
-	USBDESCR_DEVICE,	// descriptor type
-	LVAL( 0x0200 ),		// USB version supported, 2.00
-	USB_CFG_DEVICE_CLASS,
-	USB_CFG_DEVICE_SUBCLASS,
-	0,			// protocol
-	ENDPOINT0_SIZE,		// EP0 size
-	USB_CFG_MAN_ID,		// manufacturer id
-	CFG_DEVICE_ID_3DP,	// device id
-	USB_CFG_DEVICE_VERSION,	// device version
-	USB_STR_IDX_MAN,	// manufacturer string index
-	USB_STR_IDX_3DP,	// product string index
-	USB_STR_IDX_SER,	// serial number string index
-	1			// number of configurations
+const usb_device_desc_t
+    usbDeviceDesc3DP =
+    {
+	USB_DEVICE_DESC_SZ,		// Size of this descriptor in bytes (18)
+	USB_DEVICE_DESC_TYPE,		// Device (0x01)
+	USB_DEVICE_USBVER,		// USB Specification which device complies too
+	USB_DEVICE_CLASS,		// Class code. 0 if interf. defines class
+	USB_DEVICE_SUBCLASS,		// Subclass code
+	USB_DEVICE_PROTOCOL,		// Protocol code
+	USB_DEVICE_MAXPKTSZ,		// Max. packet size for EP0. 8, 16,32, or 64
+	USB_DEVICE_MAN_ID,		// Vendor ID
+	USB_DEVICE_PRO_ID_3DP,		// Product ID
+	USB_DEVICE_DEVICE_VERSION,	// Device release number
+	USB_DEVICE_IDX_MAN,		// Index of manufacturer string descr.
+	USB_DEVICE_IDX_PRO_3DP,		// Index of product string descr.
+	USB_DEVICE_IDX_SER,		// Index of serial number string descr.
+	USB_DEVICE_NUM_CONFIGS		// Number of possible configurations (1)
+    },
+    usbDeviceDescPP =
+    {
+	USB_DEVICE_DESC_SZ,		// Size of this descriptor in bytes (18)
+	USB_DEVICE_DESC_TYPE,		// Device (0x01)
+	USB_DEVICE_USBVER,		// USB Specification which device complies too
+	USB_DEVICE_CLASS,		// Class code. 0 if interf. defines class
+	USB_DEVICE_SUBCLASS,		// Subclass code
+	USB_DEVICE_PROTOCOL,		// Protocol code
+	USB_DEVICE_MAXPKTSZ,		// Max. packet size for EP0. 8, 16,32, or 64
+	USB_DEVICE_MAN_ID,		// Vendor ID
+	USB_DEVICE_PRO_ID_PP,		// Product ID
+	USB_DEVICE_DEVICE_VERSION,	// Device release number
+	USB_DEVICE_IDX_MAN,		// Index of manufacturer string descr.
+	USB_DEVICE_IDX_PRO_PP,		// Index of product string descr.
+	USB_DEVICE_IDX_SER,		// Index of serial number string descr.
+	USB_DEVICE_NUM_CONFIGS		// Number of possible configurations (1)
+    },
+    usbDeviceDescFFP =
+    {
+	USB_DEVICE_DESC_SZ,		// Size of this descriptor in bytes (18)
+	USB_DEVICE_DESC_TYPE,		// Device (0x01)
+	USB_DEVICE_USBVER,		// USB Specification which device complies too
+	USB_DEVICE_CLASS,		// Class code. 0 if interf. defines class
+	USB_DEVICE_SUBCLASS,		// Subclass code
+	USB_DEVICE_PROTOCOL,		// Protocol code
+	USB_DEVICE_MAXPKTSZ,		// Max. packet size for EP0. 8, 16,32, or 64
+	USB_DEVICE_MAN_ID,		// Vendor ID
+	USB_DEVICE_PRO_ID_FFP,		// Product ID
+	USB_DEVICE_DEVICE_VERSION,	// Device release number
+	USB_DEVICE_IDX_MAN,		// Index of manufacturer string descr.
+	USB_DEVICE_IDX_PRO_FFP,		// Index of product string descr.
+	USB_DEVICE_IDX_SER,		// Index of serial number string descr.
+	USB_DEVICE_NUM_CONFIGS		// Number of possible configurations (1)
     } ;
 
 //------------------------------------------------------------------------------
 
-const prog_uint8_t
-    usbDescDevicePP[] =
-    {				// USB device descriptor
-	18,			// length of descriptor in bytes
-	USBDESCR_DEVICE,	// descriptor type
-	LVAL( 0x0200 ),		// USB version supported, 2.00
-	USB_CFG_DEVICE_CLASS,
-	USB_CFG_DEVICE_SUBCLASS,
-	0,			// protocol
-	ENDPOINT0_SIZE,		// EP0 size
-	USB_CFG_MAN_ID,		// manufacturer id
-	CFG_DEVICE_ID_PP,	// device id
-	USB_CFG_DEVICE_VERSION,	// device version
-	USB_STR_IDX_MAN,	// manufacturer string index
-	USB_STR_IDX_PP,		// product string index
-	USB_STR_IDX_SER,	// serial number string index
-	1			// number of configurations
-    } ;
-
-//------------------------------------------------------------------------------
-
-const prog_uint8_t
-    usbDescDeviceFFP[] =
-    {				// USB device descriptor
-	18,			// length of descriptor in bytes
-	USBDESCR_DEVICE,	// descriptor type
-	LVAL( 0x0200 ),		// USB version supported
-	USB_CFG_DEVICE_CLASS,
-	USB_CFG_DEVICE_SUBCLASS,
-	0,			// protocol
-	ENDPOINT0_SIZE,		// EP0 size
-	USB_CFG_MAN_ID,		// manufacturer id
-	CFG_DEVICE_ID_FFP,	// device id
-	USB_CFG_DEVICE_VERSION,	// device version
-	USB_STR_IDX_MAN,	// manufacturer string index
-	USB_STR_IDX_FFP,	// product string index
-	USB_STR_IDX_SER,	// serial number string index
-	1			// number of configurations
-    } ;
-
-//------------------------------------------------------------------------------
-
-const prog_uint8_t
-    usbDescConfiguration3DP[] =
-    {				// USB configuration descriptor
-	9,			// length of descriptor in bytes
-	USBDESCR_CONFIG,	// descriptor type
-	LVAL( 9 + 9 + 9 + 7 ),	// total length of data returned (including inlined descriptors)
-	1,			// number of interfaces in this configuration
-	1,			// index of this configuration
-	0,			// configuration name string index, none
-	USBATTR_BUSPOWER,	// attributes
-	USB_CFG_MAX_BUS_POWER/2,// max USB current in 2mA units
-				// Interface descriptor
-	9,			// length of descriptor in bytes
-	USBDESCR_INTERFACE,	// descriptor type
-	0,			// index of this interface
-	0,			// alternate setting for this interface, none
-	1,			// endpoints excl 0: number of endpoint descriptors to follow
-	USB_CFG_INTERFACE_CLASS,
-	USB_CFG_INTERFACE_SUBCLASS,
-	USB_CFG_INTERFACE_PROTOCOL,
-	0,			// string index for interface, none
-				// HID descriptor
-	9,			// length of descriptor in bytes
-	USBDESCR_HID,		// descriptor type: HID
-	LVAL( 0x0111 ),		// BCD representation of HID version, 1.11
-	0,			// target country code
-	1,			// number of HID report (or other HID class) descriptor infos to follow
-	USBDESCR_HID_REPORT,	// descriptor type: report
-	LVAL( sizeof( usbHidReportDesc3DP ) ), // total length of report descriptor
-				// Endpoint descriptor for endpoint 1
-	7,			// length of descriptor in bytes
-	USBDESCR_ENDPOINT,	// descriptor type = endpoint
-	0x80 | HID_ENDPOINT,	// IN endpoint number
-	0x03,			// attrib: interrupt endpoint
-	LVAL( HIDEP_SIZE ),	// packet size
-	USB_CFG_INTR_POLL_INTERVAL // poll interval in ms
-    } ;
-
-//------------------------------------------------------------------------------
-
-const prog_uint8_t
-    usbDescConfigurationFFP[] =
-    {				// USB configuration descriptor
-	9,			// length of descriptor in bytes
-	USBDESCR_CONFIG,	// descriptor type
-	LVAL( 9 + 9 + 9 + 7 ),	// total length of data returned (including inlined descriptors)
-	1,			// number of interfaces in this configuration
-	1,			// index of this configuration
-	0,			// configuration name string index, none
-	USBATTR_BUSPOWER,	// attributes
-	USB_CFG_MAX_BUS_POWER/2,// max USB current in 2mA units
-				// Interface descriptor
-	9,			// length of descriptor in bytes
-	USBDESCR_INTERFACE,	// descriptor type
-	0,			// index of this interface
-	0,			// alternate setting for this interface, none
-	1,			// endpoints excl 0: number of endpoint descriptors to follow
-	USB_CFG_INTERFACE_CLASS,
-	USB_CFG_INTERFACE_SUBCLASS,
-	USB_CFG_INTERFACE_PROTOCOL,
-	0,			// string index for interface, none
-				// HID descriptor
-	9,			// length of descriptor in bytes
-	USBDESCR_HID,		// descriptor type: HID
-	LVAL( 0x0111 ),		// BCD representation of HID version, 1.11
-	0,			// target country code
-	1,			// number of HID report (or other HID class) descriptor infos to follow
-	USBDESCR_HID_REPORT,	// descriptor type: report
-	LVAL( sizeof( usbHidReportDescFFP ) ), // total length of report descriptor
-				// Endpoint descriptor for endpoint 1
-	7,			// length of descriptor in bytes
-	USBDESCR_ENDPOINT,	// descriptor type = endpoint
-	0x80 | HID_ENDPOINT,	// IN endpoint number
-	0x03,			// attrib: interrupt endpoint
-	LVAL( HIDEP_SIZE ),	// packet size
-	USB_CFG_INTR_POLL_INTERVAL // poll interval in ms
+const usb_configuration_desc_t
+    usbConfigurationDesc3DP =
+    {
+	{				// Configuration Descriptor
+	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_CONFIG_DESC_TYPE,	// Config (0x02)
+	    sizeof( usb_configuration_desc_t ),// Total size of this configuration
+	    USB_CONFIG_NUM_INTERF,	// Number of interfaces in this configuration
+	    USB_CONFIG_VAL,		// Value to use to select this configuration
+	    USB_CONFIG_IDX,		// Index of string descr. this configuration
+	    USB_CONFIG_ATTR,		// Configuration characteristics
+	    USB_CONFIG_MAXPOWER		// Max. power consumption in 2mA units
+	},
+	{				// Interface Descriptor
+	    USB_INTERF_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_INTERF_DESC_TYPE,	// Interface (0x04)
+	    USB_INTERF_NUM,		// Number of this interface (0 based)
+	    USB_INTERF_ALTSET_NONE,	// Value to select alternative setting
+	    USB_INTERF_NUMEP,		// Number of EPs for this interface
+	    USB_INTERF_CLASS_HID,	// Class code
+	    USB_INTERF_SUBCLASS_NONE,	// Subclass code
+	    USB_INTERF_PROTOCOL_NONE,	// Protocol code
+	    USB_INTERF_IDX		// Index of string descr. this interface
+	},
+	{				// HID Descriptor Keyboard
+	    USB_HID_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_HID_DESC_TYPE,		// HID (0x21)
+	    USB_HID_VERSION,		// HID class version suported (1.11)
+	    USB_HID_COUNTRY_ANY,	// Country code
+	    USB_HID_NUM_DESC_1,		// Number of class descriptors (1, report)
+	    USB_HIDREP_DESC_TYPE,	// Class descriptor type (0x22, HID report)
+	    sizeof( usbHidRepDesc3DP )	// Class descriptor length
+	},
+	{				// EP Descriptor Keyboard
+	    USB_EP_DESC_SZ,		// Size of this descriptor in bytes (7)
+	    USB_EP_DESC_TYPE,		// Endpoint (0x05)
+	    (EP_HID | USB_EP_IN),	// Endpoint address
+	    USB_EP_INTR,		// Endpoint attributes
+	    EP_HID_SZ,			// Max. packet size this EP can transfer
+	    USB_EP_POLL_INTERVAL	// Polling interval for this EP in ms
+	}
+    },
+    usbConfigurationDescPP =
+    {
+	{				// Configuration Descriptor
+	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_CONFIG_DESC_TYPE,	// Config (0x02)
+	    sizeof( usb_configuration_desc_t ),// Total size of this configuration
+	    USB_CONFIG_NUM_INTERF,	// Number of interfaces in this configuration
+	    USB_CONFIG_VAL,		// Value to use to select this configuration
+	    USB_CONFIG_IDX,		// Index of string descr. this configuration
+	    USB_CONFIG_ATTR,		// Configuration characteristics
+	    USB_CONFIG_MAXPOWER		// Max. power consumption in 2mA units
+	},
+	{				// Interface Descriptor
+	    USB_INTERF_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_INTERF_DESC_TYPE,	// Interface (0x04)
+	    USB_INTERF_NUM,		// Number of this interface (0 based)
+	    USB_INTERF_ALTSET_NONE,	// Value to select alternative setting
+	    USB_INTERF_NUMEP,		// Number of EPs for this interface
+	    USB_INTERF_CLASS_HID,	// Class code
+	    USB_INTERF_SUBCLASS_NONE,	// Subclass code
+	    USB_INTERF_PROTOCOL_NONE,	// Protocol code
+	    USB_INTERF_IDX		// Index of string descr. this interface
+	},
+	{				// HID Descriptor Keyboard
+	    USB_HID_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_HID_DESC_TYPE,		// HID (0x21)
+	    USB_HID_VERSION,		// HID class version suported (1.11)
+	    USB_HID_COUNTRY_ANY,	// Country code
+	    USB_HID_NUM_DESC_1,		// Number of class descriptors (1, report)
+	    USB_HIDREP_DESC_TYPE,	// Class descriptor type (0x22, HID report)
+	    sizeof( usbHidRepDescFFP )	// Class descriptor length
+	},
+	{				// EP Descriptor Keyboard
+	    USB_EP_DESC_SZ,		// Size of this descriptor in bytes (7)
+	    USB_EP_DESC_TYPE,		// Endpoint (0x05)
+	    (EP_HID | USB_EP_IN),	// Endpoint address
+	    USB_EP_INTR,		// Endpoint attributes
+	    EP_HID_SZ,			// Max. packet size this EP can transfer
+	    USB_EP_POLL_INTERVAL	// Polling interval for this EP in ms
+	}
+    },
+    usbConfigurationDescFFP =
+    {
+	{				// Configuration Descriptor
+	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_CONFIG_DESC_TYPE,	// Config (0x02)
+	    sizeof( usb_configuration_desc_t ),// Total size of this configuration
+	    USB_CONFIG_NUM_INTERF,	// Number of interfaces in this configuration
+	    USB_CONFIG_VAL,		// Value to use to select this configuration
+	    USB_CONFIG_IDX,		// Index of string descr. this configuration
+	    USB_CONFIG_ATTR,		// Configuration characteristics
+	    USB_CONFIG_MAXPOWER		// Max. power consumption in 2mA units
+	},
+	{				// Interface Descriptor
+	    USB_INTERF_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_INTERF_DESC_TYPE,	// Interface (0x04)
+	    USB_INTERF_NUM,		// Number of this interface (0 based)
+	    USB_INTERF_ALTSET_NONE,	// Value to select alternative setting
+	    USB_INTERF_NUMEP,		// Number of EPs for this interface
+	    USB_INTERF_CLASS_HID,	// Class code
+	    USB_INTERF_SUBCLASS_NONE,	// Subclass code
+	    USB_INTERF_PROTOCOL_NONE,	// Protocol code
+	    USB_INTERF_IDX		// Index of string descr. this interface
+	},
+	{				// HID Descriptor Keyboard
+	    USB_HID_DESC_SZ,		// Size of this descriptor in bytes (9)
+	    USB_HID_DESC_TYPE,		// HID (0x21)
+	    USB_HID_VERSION,		// HID class version suported (1.11)
+	    USB_HID_COUNTRY_ANY,	// Country code
+	    USB_HID_NUM_DESC_1,		// Number of class descriptors (1, report)
+	    USB_HIDREP_DESC_TYPE,	// Class descriptor type (0x22, HID report)
+	    sizeof( usbHidRepDescFFP )	// Class descriptor length
+	},
+	{				// EP Descriptor Keyboard
+	    USB_EP_DESC_SZ,		// Size of this descriptor in bytes (7)
+	    USB_EP_DESC_TYPE,		// Endpoint (0x05)
+	    (EP_HID | USB_EP_IN),	// Endpoint address
+	    USB_EP_INTR,		// Endpoint attributes
+	    EP_HID_SZ,			// Max. packet size this EP can transfer
+	    USB_EP_POLL_INTERVAL	// Polling interval for this EP in ms
+	}
     } ;
 
 //------------------------------------------------------------------------------

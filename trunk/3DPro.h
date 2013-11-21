@@ -34,46 +34,6 @@
 #define	IDSZFFP		14	/* FFP ID packet size */
 
 //-------------------------------------------------------------------------------
-// Things not defined in iom32u4.h
-
-#if defined(__AVR_ATmegaXU4__)
-
-#define	PRTIM4		4	/* Power reduction register bit 4 for Timer 4 */
-
-#define	PB7		PORTB7
-#define	PB6		PORTB6
-#define	PB5		PORTB5
-#define	PB4		PORTB4
-#define	PB3		PORTB3
-#define	PB2		PORTB2
-#define	PB1		PORTB1
-#define	PB0		PORTB0
-
-#define	PC7		PORTC7
-#define	PC6		PORTC6
-
-#define	PD7		PORTD7
-#define	PD6		PORTD6
-#define	PD5		PORTD5
-#define	PD4		PORTD4
-#define	PD3		PORTD3
-#define	PD2		PORTD2
-#define	PD1		PORTD1
-#define	PD0		PORTD0
-
-#define	PE6		PORTE6
-#define	PE2		PORTE2
-
-#define	PF7		PORTF7
-#define	PF6		PORTF6
-#define	PF5		PORTF5
-#define	PF4		PORTF4
-#define	PF1		PORTF1
-#define	PF0		PORTF0
-
-#endif
-
-//-------------------------------------------------------------------------------
 // Hardware specific definitions
 
 #define	LEDPORT		PORTD
