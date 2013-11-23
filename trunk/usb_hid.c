@@ -316,12 +316,20 @@ ISR( USB_GEN_vect )
 	    clr_bit( UDIEN, SUSPE ) ;
 	    set_bit( UDIEN, WAKEUPE ) ;
 
-            usb_suspend = TRUE ;
+	    set_bit( USBCON, FRZCLK ) ;		// Stop USB module
+	    clr_bit( PLLCSR, PLLE ) ;		// Stop PLL
+
+	    usb_suspend = TRUE ;
 	}
 
 	if ( (intbits & _BV(WAKEUPI)) && bit_is_set( UDIEN, WAKEUPE ) )
 	{
 	    // Exit suspend
+
+	    for ( set_bit( PLLCSR, PLLE ) ; bit_is_clear( PLLCSR, PLOCK ) ; )
+		;				// Start PLL
+
+	    clr_bit( USBCON, FRZCLK ) ;		// Start USB module
 
 	    set_bit( UDIEN, SUSPE ) ;
 	    clr_bit( UDIEN, WAKEUPE ) ;

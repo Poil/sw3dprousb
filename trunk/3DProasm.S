@@ -320,7 +320,7 @@ I0case7:				; b7-b5 are right					       5+15=20 +21=41
 
 Int0End:
 	sts	sw_pktptrL,XL		; Save buffer pointer L			2
-	sts	sw_pktptrH,XH		; Save buffer pointer L			2
+	sts	sw_pktptrH,XH		; Save buffer pointer H			2
 
 	pop	XH			; Restore XH				2		+11
 	pop	XL			; Restore XL				2	+4
