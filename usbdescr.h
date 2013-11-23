@@ -91,7 +91,7 @@ typedef struct
 #define	USB_STRING_DESC_TYPE		0x03
 #define USB_STRING_DESC_SZ( sz )	(sizeof( uint8_t ) * 2 + sizeof( int16_t ) * (sz))
 
-#define	USB_STRING_LAN			0x0409
+#define	USB_STRING_LAN			wUSB( 0x0409 )
 #define	USB_STRING_LAN_SZ		1
 
 #define	USB_STRING_DESC_LAN_SZ		USB_STRING_DESC_SZ( USB_STRING_LAN_SZ )

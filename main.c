@@ -70,6 +70,8 @@ static uint8_t sw_repchg ( void )
 
 int FA_NORETURN( main ) ( void )
 {
+    uint16_t
+	timer ;
     uint8_t
 	susp,
 	sw_sendrep ;
@@ -90,6 +92,7 @@ int FA_NORETURN( main ) ( void )
 
     susp = TRUE ;
     sw_sendrep = sw_repchg() ;			// Init send report flag, saved report
+    timer = 0 ;
 
     for ( ;; )					// Forever..
     {
@@ -107,6 +110,11 @@ int FA_NORETURN( main ) ( void )
 		clock_prescale_set( clock_div_1 ) ;
 
 		clr_bits( PRR0, _BV(PRTIM0) | _BV(PRTIM1) ) ;
+
+		idle_cnt = idle_rate ;		// reset idle counter
+
+		ResetTM( 0, READ_DEL ) ;
+		ResetTM( 1, IDLE_DEL ) ;
 
 		wdt_enable( WDTO_500MS ) ;	// Unleash watchdog
 	    }
@@ -160,6 +168,30 @@ int FA_NORETURN( main ) ( void )
 		// Set clock divider to 2, half speed
 
 		clock_prescale_set( clock_div_2 ) ;
+
+		timer    = 0xFFFF ;
+		idle_cnt = 10 ;
+	    }
+
+	    if ( ! --timer )
+	    {
+		timer = 0xFFFF ;
+
+		if ( ! --idle_cnt )
+		{
+		    if ( LED_sts() )
+		    {
+			timer    = 0xFFFF ;
+			idle_cnt = 10 ;
+			LED_off() ;
+		    }
+		    else
+		    {
+			timer    = 30 ;
+			idle_cnt = 1 ;
+			LED_on() ;
+		    }
+		}
 	    }
 	}
 	else

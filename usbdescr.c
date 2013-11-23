@@ -229,7 +229,7 @@ const usb_configuration_desc_t
 	{				// Configuration Descriptor
 	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
 	    USB_CONFIG_DESC_TYPE,	// Config (0x02)
-	    sizeof( usb_configuration_desc_t ),// Total size of this configuration
+	    wUSB( sizeof( usb_configuration_desc_t ) ),// Total size of this configuration
 	    USB_CONFIG_NUM_INTERF,	// Number of interfaces in this configuration
 	    USB_CONFIG_VAL,		// Value to use to select this configuration
 	    USB_CONFIG_IDX,		// Index of string descr. this configuration
@@ -254,55 +254,14 @@ const usb_configuration_desc_t
 	    USB_HID_COUNTRY_ANY,	// Country code
 	    USB_HID_NUM_DESC_1,		// Number of class descriptors (1, report)
 	    USB_HIDREP_DESC_TYPE,	// Class descriptor type (0x22, HID report)
-	    sizeof( usbHidRepDesc3DP )	// Class descriptor length
+	    wUSB( sizeof( usbHidRepDesc3DP ) )	// Class descriptor length
 	},
 	{				// EP Descriptor Keyboard
 	    USB_EP_DESC_SZ,		// Size of this descriptor in bytes (7)
 	    USB_EP_DESC_TYPE,		// Endpoint (0x05)
 	    (EP_HID | USB_EP_IN),	// Endpoint address
 	    USB_EP_INTR,		// Endpoint attributes
-	    EP_HID_SZ,			// Max. packet size this EP can transfer
-	    USB_EP_POLL_INTERVAL	// Polling interval for this EP in ms
-	}
-    },
-    usbConfigurationDescPP =
-    {
-	{				// Configuration Descriptor
-	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
-	    USB_CONFIG_DESC_TYPE,	// Config (0x02)
-	    sizeof( usb_configuration_desc_t ),// Total size of this configuration
-	    USB_CONFIG_NUM_INTERF,	// Number of interfaces in this configuration
-	    USB_CONFIG_VAL,		// Value to use to select this configuration
-	    USB_CONFIG_IDX,		// Index of string descr. this configuration
-	    USB_CONFIG_ATTR,		// Configuration characteristics
-	    USB_CONFIG_MAXPOWER		// Max. power consumption in 2mA units
-	},
-	{				// Interface Descriptor
-	    USB_INTERF_DESC_SZ,		// Size of this descriptor in bytes (9)
-	    USB_INTERF_DESC_TYPE,	// Interface (0x04)
-	    USB_INTERF_NUM,		// Number of this interface (0 based)
-	    USB_INTERF_ALTSET_NONE,	// Value to select alternative setting
-	    USB_INTERF_NUMEP,		// Number of EPs for this interface
-	    USB_INTERF_CLASS_HID,	// Class code
-	    USB_INTERF_SUBCLASS_NONE,	// Subclass code
-	    USB_INTERF_PROTOCOL_NONE,	// Protocol code
-	    USB_INTERF_IDX		// Index of string descr. this interface
-	},
-	{				// HID Descriptor Keyboard
-	    USB_HID_DESC_SZ,		// Size of this descriptor in bytes (9)
-	    USB_HID_DESC_TYPE,		// HID (0x21)
-	    USB_HID_VERSION,		// HID class version suported (1.11)
-	    USB_HID_COUNTRY_ANY,	// Country code
-	    USB_HID_NUM_DESC_1,		// Number of class descriptors (1, report)
-	    USB_HIDREP_DESC_TYPE,	// Class descriptor type (0x22, HID report)
-	    sizeof( usbHidRepDescFFP )	// Class descriptor length
-	},
-	{				// EP Descriptor Keyboard
-	    USB_EP_DESC_SZ,		// Size of this descriptor in bytes (7)
-	    USB_EP_DESC_TYPE,		// Endpoint (0x05)
-	    (EP_HID | USB_EP_IN),	// Endpoint address
-	    USB_EP_INTR,		// Endpoint attributes
-	    EP_HID_SZ,			// Max. packet size this EP can transfer
+	    wUSB( EP_HID_SZ ),		// Max. packet size this EP can transfer
 	    USB_EP_POLL_INTERVAL	// Polling interval for this EP in ms
 	}
     },
@@ -311,7 +270,7 @@ const usb_configuration_desc_t
 	{				// Configuration Descriptor
 	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
 	    USB_CONFIG_DESC_TYPE,	// Config (0x02)
-	    sizeof( usb_configuration_desc_t ),// Total size of this configuration
+	    wUSB( sizeof( usb_configuration_desc_t ) ),// Total size of this configuration
 	    USB_CONFIG_NUM_INTERF,	// Number of interfaces in this configuration
 	    USB_CONFIG_VAL,		// Value to use to select this configuration
 	    USB_CONFIG_IDX,		// Index of string descr. this configuration
@@ -336,14 +295,14 @@ const usb_configuration_desc_t
 	    USB_HID_COUNTRY_ANY,	// Country code
 	    USB_HID_NUM_DESC_1,		// Number of class descriptors (1, report)
 	    USB_HIDREP_DESC_TYPE,	// Class descriptor type (0x22, HID report)
-	    sizeof( usbHidRepDescFFP )	// Class descriptor length
+	    wUSB( sizeof( usbHidRepDescFFP ) )	// Class descriptor length
 	},
 	{				// EP Descriptor Keyboard
 	    USB_EP_DESC_SZ,		// Size of this descriptor in bytes (7)
 	    USB_EP_DESC_TYPE,		// Endpoint (0x05)
 	    (EP_HID | USB_EP_IN),	// Endpoint address
 	    USB_EP_INTR,		// Endpoint attributes
-	    EP_HID_SZ,			// Max. packet size this EP can transfer
+	    wUSB( EP_HID_SZ ),		// Max. packet size this EP can transfer
 	    USB_EP_POLL_INTERVAL	// Polling interval for this EP in ms
 	}
     } ;

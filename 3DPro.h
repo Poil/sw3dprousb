@@ -128,11 +128,13 @@
 
 #define	LED_on()	clr_bit( LEDPORT, LEDBIT )
 #define	LED_off()	set_bit( LEDPORT, LEDBIT )
+#define	LED_sts()	bit_is_clear( LEDPORT, LEDBIT )
 
 #elif defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USB1286__)
 
 #define	LED_on()	set_bit( LEDPORT, LEDBIT )
 #define	LED_off()	clr_bit( LEDPORT, LEDBIT )
+#define	LED_sts()	bit_is_set( LEDPORT, LEDBIT )
 
 #endif
 
