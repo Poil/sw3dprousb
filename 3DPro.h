@@ -44,11 +44,20 @@
 #define TRGY2BIT	DDB5
 #define TRGX1BIT	DDB4
 
-#define	BUTPIN		PIND
-#define	BUT1		PD0
-#define	BUT2		PD1
-#define	BUT3		PD2
-#define	BUT4		PD3
+#if defined(FFP_HW)
+ #define BUTPIN		PINB
+ #define BUT1		PB0
+ #define BUT2		PB1
+ #define BUT3		PB2
+ #define BUT4		PB3
+#else
+ #define BUTPIN		PIND
+ #define BUT1		PD0
+ #define BUT2		PD1
+ #define BUT3		PD2
+ #define BUT4		PD3
+#endif
+
 #define	BUTMSK		(_B1(BUT4) | _B1(BUT3) | _B1(BUT2) | _B1(BUT1))
 
 #define ClrSerial()	((BUTPIN & BUTMSK) == (_B1(BUT2) | _B1(BUT1)))
