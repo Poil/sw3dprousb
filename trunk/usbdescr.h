@@ -32,7 +32,11 @@
 #define	USB_PRODUCT_ID_PP		wUSB( 0x0004 )
 #define	USB_PRODUCT_ID_FFP		wUSB( 0x0005 )
 
+#if defined(FFP_HW)
+#define USB_DEVICE_VERSION		wUSB( 0x0401 )	/* 4.01 */
+#else
 #define USB_DEVICE_VERSION		wUSB( 0x0400 )	/* 4.00 */
+#endif
 
 #define USB_STRING_MAN			'D','e','t','l','e','f',' ', \
 					'<','G','r','e','n','d','e','l','>', ' ', \
