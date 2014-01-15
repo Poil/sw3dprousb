@@ -88,7 +88,7 @@ typedef struct
 	uint8_t  bDescriptorType ;	// String (0x03)
 	uint16_t wString[] ;		// Unicode encoded string
     }
-    TA_PROGMEM( usb_string_desc_t ) ;
+    usb_string_desc_t ;
 
 //------------------------------------------------------------------------------
 
@@ -133,7 +133,7 @@ typedef struct
 	uint8_t  iSerialNumber ;	// Index of serial number string descr.
 	uint8_t  bNumConfigurations ;	// Number of possible configurations (1)
     }
-    TA_PROGMEM( usb_device_desc_t ) ;
+    usb_device_desc_t ;
 
 //------------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ typedef struct
 	uint8_t  bmAttributes ;		// Configuration characteristics
 	uint8_t  bMaxPower ;		// Max. power consumption in 2mA units
     }
-    TA_PROGMEM( usb_config_desc_t ) ;
+    usb_config_desc_t ;
 
 //------------------------------------------------------------------------------
 
@@ -209,7 +209,7 @@ typedef struct
 	uint8_t  bInterfaceProtocol ;	// Protocol code
 	uint8_t  iInterface ;		// Index of string descr. this interface
     }
-    TA_PROGMEM( usb_interf_desc_t ) ;
+    usb_interf_desc_t ;
 
 //------------------------------------------------------------------------------
 
@@ -243,7 +243,7 @@ typedef struct
 	uint8_t  bDescrType ;		// Class descriptor type (0x22, HID report)
 	uint16_t wDescrLength ;		// Class descriptor length
     }
-    TA_PROGMEM( usb_hid_desc_t ) ;
+    usb_hid_desc_t ;
 
 //------------------------------------------------------------------------------
 
@@ -268,7 +268,7 @@ typedef struct
 	uint16_t wMaxPacketSize ;	// Max. packet size this EP can transfer
 	uint8_t  bInterval ;		// Polling interval for this EP in ms
     }
-    TA_PROGMEM( usb_ep_desc_t ) ;
+    usb_ep_desc_t ;
 
 //------------------------------------------------------------------------------
 
@@ -289,32 +289,32 @@ typedef struct
 	usb_hid_desc_t    hid ;
 	usb_ep_desc_t     ep ;
     }
-    TA_PROGMEM( usb_configuration_desc_t ) ;
+    usb_configuration_desc_t ;
 
 //------------------------------------------------------------------------------
 
 // Descriptor declarations
 
-extern const prog_uint8_t
-    usbHidRepDesc3DP[USB_HIDREP_DESC_3DP_SZ],
-    usbHidRepDescFFP[USB_HIDREP_DESC_FFP_SZ] ;
+extern const uint8_t
+    usbHidRepDesc3DP[USB_HIDREP_DESC_3DP_SZ] PROGMEM,
+    usbHidRepDescFFP[USB_HIDREP_DESC_FFP_SZ] PROGMEM ;
 
 extern const usb_string_desc_t
-    usbStringDescLan,
-    usbStringDescMan,
-    usbStringDescPro3DP,
-    usbStringDescProPP,
-    usbStringDescProFFP,
-    usbStringDescSer ;
+    usbStringDescLan PROGMEM,
+    usbStringDescMan PROGMEM,
+    usbStringDescPro3DP PROGMEM,
+    usbStringDescProPP PROGMEM,
+    usbStringDescProFFP PROGMEM,
+    usbStringDescSer PROGMEM ;
 
 extern const usb_device_desc_t
-    usbDeviceDesc3DP,
-    usbDeviceDescPP,
-    usbDeviceDescFFP ;
+    usbDeviceDesc3DP PROGMEM,
+    usbDeviceDescPP PROGMEM,
+    usbDeviceDescFFP PROGMEM ;
 
 extern const usb_configuration_desc_t
-    usbConfigurationDesc3DP,
-    usbConfigurationDescFFP ;
+    usbConfigurationDesc3DP PROGMEM,
+    usbConfigurationDescFFP PROGMEM ;
 
 //------------------------------------------------------------------------------
 

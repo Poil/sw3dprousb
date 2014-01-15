@@ -419,11 +419,8 @@ static void FA_NORETURN( reboot ) ( void )
 //------------------------------------------------------------------------------
 
 // Initialize the hardware
-//
-// init_hw() is called only once, first thing in main(),
-// so it doesn't need a stack frame. Saves lots of push/pops.
 
-void FA_NAKED( init_hw ) ( void )
+void init_hw ( void )
 {
     // Power down..
 
@@ -518,8 +515,6 @@ void FA_NAKED( init_hw ) ( void )
     cli() ;					// Disable interrupts
 
     sw_buttons = BUTMSK ;			// All buttons released
-
-    RET() ;					// naked also means no ret..
 }
 
 //------------------------------------------------------------------------------

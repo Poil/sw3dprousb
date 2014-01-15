@@ -1,12 +1,11 @@
 /*******************************************************************************
  * File Name	: includes.h
  * Project	: Generic AVR based
- * Date		: 2013/11/12
+ * Date		: 2014/01/09
  * Version      : 1.1
- * Target MCU   : AT90USB8/162, ATMEGA16/32U4, AT90USB64/1286
+ * Target MCU   : AT90USB8/162, ATMEGA16/32U4/U2, AT90USB64/1286
  * Tool Chain   : Atmel AVR Studio 4.19 730 / WinAVR 20100110
- * Author       : Detlef Mueller
- *                detlef@gmail.com
+ * Author       : "Detlef Mueller" <detlef@gmail.com>
  * Release Notes:
  *
  * $Id$
@@ -25,9 +24,13 @@
  #define __AVR_ATmegaXU4__
 #elif defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
  #define __AVR_AT90USBX6__
+#elif defined(__AVR_ATmega8U2__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega32U2__)
+ #define __AVR_ATmegaXU2__
 #else
  #error "Unsupported device"
 #endif
+
+// #define __PROG_TYPES_COMPAT__
 
 //------------------------------------------------------------------------------
 
@@ -51,6 +54,9 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <avr/power.h>
+#include <avr/sleep.h>
+
+#include <util/delay_basic.h>
 
 //-------------------------------------------------------------------------------
 // Things not defined in iom32u4.h
@@ -93,6 +99,46 @@
 #endif
 
 //------------------------------------------------------------------------------
+// Missing in power.h for the ATmegaXU2 (WinAVR 20100110)
+
+#if defined(__AVR_ATmegaXU2__)
+
+ #if ! defined(clock_prescale_get)
+
+typedef enum
+    {
+	clock_div_1   = 0, clock_div_2   = 1,
+	clock_div_4   = 2, clock_div_8   = 3,
+	clock_div_16  = 4, clock_div_32  = 5,
+	clock_div_64  = 6, clock_div_128 = 7,
+	clock_div_256 = 8
+    }
+    clock_div_t ;
+
+#define clock_prescale_set( x )			\
+	do {					\
+		uint8_t tmp = _BV(CLKPCE) ;	\
+		__asm__ __volatile__ (		\
+		"in __tmp_reg__,__SREG__" "\n\t"\
+		"cli" "\n\t"			\
+		"sts %1, %0" "\n\t"		\
+		"sts %1, %2" "\n\t"		\
+		"out __SREG__, __tmp_reg__"	\
+		: /* no outputs */		\
+		: "d" (tmp),			\
+		  "M" (_SFR_MEM_ADDR(CLKPR)),	\
+		  "d" (x)			\
+		: "r0" ) ;			\
+	} while (0)
+
+#define clock_prescale_get()			\
+	(clock_div_t)(CLKPR & (uint8_t)		\
+	((1<<CLKPS0) | (1<<CLKPS1) |		\
+	 (1<<CLKPS2) | (1<<CLKPS3)) )
+ #endif
+#endif
+
+//------------------------------------------------------------------------------
 
 #define set_bit( sfr, bit )	(_SFR_BYTE(sfr) |=  _BV(bit))
 #define clr_bit( sfr, bit )	(_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -115,14 +161,19 @@
 #define	FA_NOINRET( _f )	__FA__( _f, __noinline__,__noreturn__ )
 #define	FA_INIT3( _f )		__FA__( _f, __used__,__naked__,__section__(".init3") )
 
-#define	VA_PROGMEM( _v )	_v PROGMEM
+#define	VA_PROGMEM( _v )	_v __attribute__((__progmem__))
 #define	VA_NOINIT( _v )		_v __attribute__((__section__(".noinit")))
 
-#define	TA_PROGMEM( _t )	PROGMEM _t
+#ifdef __PROG_TYPES_COMPAT__
+ #define TA_PROGMEM( _t )	PROGMEM _t
+ #warning "Deprecated since the usage of PROGMEM on a type is not supported in GCC"
+#else
+ #define TA_PROGMEM( _t )	_t
+#endif
 
 //------------------------------------------------------------------------------
 
-#define	__WRAP__( _c )		do _c while (0)
+#define	__WRAP__( __c )		do __c while (0)
 
 //------------------------------------------------------------------------------
 
@@ -133,10 +184,14 @@
 
 //------------------------------------------------------------------------------
 
-#define	RET()			__asm__ __volatile__ ( "ret\n\t" :: )
-#define	SLEEP()			__asm__ __volatile__ ( "sleep\n\t" :: )
-#define RESET()			__asm__ __volatile__ ( "jmp 0\n\t" :: )
-#define	NOP()			__asm__ __volatile__ ( "nop\n\t" :: )
+#define	JMP( _a )	__asm__ __volatile__ ( "jmp %[_ad]\n\t" :: [_ad] "i" (_a) )
+
+#define	RESET()		JMP( 0 )
+
+#define	RET()		__asm__ __volatile__ ( "ret\n\t" :: )
+#define	SLEEP()		__asm__ __volatile__ ( "sleep\n\t" :: )
+#define	NOP()		__asm__ __volatile__ ( "nop\n\t" :: )
+#define	NOP2()		__asm__ __volatile__ ( "rjmp .+0\n\t" :: )
 
 //------------------------------------------------------------------------------
 
@@ -157,15 +212,19 @@
 
 //------------------------------------------------------------------------------
 
-#if defined(__AVR_AT90USB162__)                // Teensy 1.0
-#define	jmp_bootloader()		__asm__ __volatile__("jmp 0x3E00")
-#elif defined(__AVR_ATmega32U4__)              // Teensy 2.0
-#define	jmp_bootloader()		__asm__ __volatile__("jmp 0x7E00")
-#elif defined(__AVR_AT90USB646__)              // Teensy++ 1.0
-#define	jmp_bootloader()		__asm__ __volatile__("jmp 0xFC00")
-#elif defined(__AVR_AT90USB1286__)             // Teensy++ 2.0
-#define	jmp_bootloader()		__asm__ __volatile__("jmp 0x1FC00")
+#if defined(__AVR_ATmegaXU2__)
+ #define __BL_ADDR			0x3000		/* KeyCard */
+#elif defined(__AVR_AT90USB162__)
+ #define __BL_ADDR			0x3E00		/* Teensy 1.0 */
+#elif defined(__AVR_ATmega32U4__)
+ #define __BL_ADDR			0x7E00		/* Teensy 2.0 */
+#elif defined(__AVR_AT90USB646__)
+ #define __BL_ADDR			0xFC00		/* Teensy++ 1.0 */
+#elif defined(__AVR_AT90USB1286__)
+ #define __BL_ADDR			0x1FC00		/* Teensy++ 2.0 */
 #endif 
+
+#define	jmp_bootloader()		JMP( __BL_ADDR )
 
 #if FOR_REFERENCE
 

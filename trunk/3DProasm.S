@@ -173,8 +173,6 @@
 ;*******************************************************************************
 ;-------------------------------------------------------------------------------
 
-; Note: the following variables MUST be in the same 256 byte RAM segment !!
-
 	.section	.bss,"aw",@nobits
 
 	.global sw_idbuf

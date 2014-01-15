@@ -78,7 +78,7 @@ int FA_NORETURN( main ) ( void )
 
     // Initialize..
 
-    init_hw() ;					// hardware. Note: defined as naked !
+    init_hw() ;					// hardware.
 
     sw_reportsz =				// report size
 	(sw_id == SW_ID_3DP ? SW_REPSZ_3DP : SW_REPSZ_FFP) ;

@@ -22,8 +22,8 @@
 
 //------------------------------------------------------------------------------
 
-const prog_uint8_t
-    usbHidRepDesc3DP[] =
+const uint8_t
+    usbHidRepDesc3DP[] PROGMEM =
     {
 	0x05,0x01,		// USAGE_PAGE (Generic Desktop)
 	0x09,0x04,		// USAGE (Joystick)
@@ -86,8 +86,8 @@ const prog_uint8_t
 
 //------------------------------------------------------------------------------
 
-const prog_uint8_t
-    usbHidRepDescFFP[] =
+const uint8_t
+    usbHidRepDescFFP[] PROGMEM =
     {
 	0x05, 0x01,		// USAGE_PAGE (Generic Desktop)
 	0x09, 0x04,		// USAGE (Joystick)
@@ -159,17 +159,17 @@ const prog_uint8_t
 //------------------------------------------------------------------------------
 
 const usb_string_desc_t
-    usbStringDescLan = { USB_STRING_DESC_LAN_SZ, USB_STRING_DESC_TYPE, { USB_STRING_LAN } },
-    usbStringDescMan = { USB_STRING_DESC_MAN_SZ, USB_STRING_DESC_TYPE, { USB_STRING_MAN } },
-    usbStringDescSer = { USB_STRING_DESC_SER_SZ, USB_STRING_DESC_TYPE, { USB_STRING_SER } },
-    usbStringDescPro3DP = { USB_STRING_DESC_PRO_3DP_SZ, USB_STRING_DESC_TYPE, { USB_STRING_PRO_3DP } },
-    usbStringDescProPP  = { USB_STRING_DESC_PRO_PP_SZ,  USB_STRING_DESC_TYPE, { USB_STRING_PRO_PP  } },
-    usbStringDescProFFP = { USB_STRING_DESC_PRO_FFP_SZ, USB_STRING_DESC_TYPE, { USB_STRING_PRO_FFP } } ;
+    usbStringDescLan PROGMEM = { USB_STRING_DESC_LAN_SZ, USB_STRING_DESC_TYPE, { USB_STRING_LAN } },
+    usbStringDescMan PROGMEM = { USB_STRING_DESC_MAN_SZ, USB_STRING_DESC_TYPE, { USB_STRING_MAN } },
+    usbStringDescSer PROGMEM = { USB_STRING_DESC_SER_SZ, USB_STRING_DESC_TYPE, { USB_STRING_SER } },
+    usbStringDescPro3DP PROGMEM = { USB_STRING_DESC_PRO_3DP_SZ, USB_STRING_DESC_TYPE, { USB_STRING_PRO_3DP } },
+    usbStringDescProPP  PROGMEM = { USB_STRING_DESC_PRO_PP_SZ,  USB_STRING_DESC_TYPE, { USB_STRING_PRO_PP  } },
+    usbStringDescProFFP PROGMEM = { USB_STRING_DESC_PRO_FFP_SZ, USB_STRING_DESC_TYPE, { USB_STRING_PRO_FFP } } ;
 
 //------------------------------------------------------------------------------
 
 const usb_device_desc_t
-    usbDeviceDesc3DP =
+    usbDeviceDesc3DP PROGMEM =
     {
 	USB_DEVICE_DESC_SZ,		// Size of this descriptor in bytes (18)
 	USB_DEVICE_DESC_TYPE,		// Device (0x01)
@@ -186,7 +186,7 @@ const usb_device_desc_t
 	USB_DEVICE_IDX_SER,		// Index of serial number string descr.
 	USB_DEVICE_NUM_CONFIGS		// Number of possible configurations (1)
     },
-    usbDeviceDescPP =
+    usbDeviceDescPP PROGMEM =
     {
 	USB_DEVICE_DESC_SZ,		// Size of this descriptor in bytes (18)
 	USB_DEVICE_DESC_TYPE,		// Device (0x01)
@@ -203,7 +203,7 @@ const usb_device_desc_t
 	USB_DEVICE_IDX_SER,		// Index of serial number string descr.
 	USB_DEVICE_NUM_CONFIGS		// Number of possible configurations (1)
     },
-    usbDeviceDescFFP =
+    usbDeviceDescFFP PROGMEM =
     {
 	USB_DEVICE_DESC_SZ,		// Size of this descriptor in bytes (18)
 	USB_DEVICE_DESC_TYPE,		// Device (0x01)
@@ -224,7 +224,7 @@ const usb_device_desc_t
 //------------------------------------------------------------------------------
 
 const usb_configuration_desc_t
-    usbConfigurationDesc3DP =
+    usbConfigurationDesc3DP PROGMEM =
     {
 	{				// Configuration Descriptor
 	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
@@ -265,7 +265,7 @@ const usb_configuration_desc_t
 	    USB_EP_POLL_INTERVAL	// Polling interval for this EP in ms
 	}
     },
-    usbConfigurationDescFFP =
+    usbConfigurationDescFFP PROGMEM =
     {
 	{				// Configuration Descriptor
 	    USB_CONFIG_DESC_SZ,		// Size of this descriptor in bytes (9)
