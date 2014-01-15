@@ -26,8 +26,8 @@
 //  Endpoint Buffer Configuration
 //******************************************************************************
 
-static const prog_uint8_t
-    endpoint_config_table[] =
+static const uint8_t
+    endpoint_config_table[] PROGMEM =
     {
 	TRUE, EP_TYPE_INTERRUPT_IN, EP_SIZE( EP_HID_SZ ) | EP_HID_BUFFER,
 	FALSE,
@@ -46,80 +46,99 @@ static const prog_uint8_t
 //******************************************************************************
 
 // These tables map a host descriptor request to the actual data.
-// We only need to check for wValue in this configuration.
 
 #define	IN_RAM		0
 #define	IN_ROM		1
 #define	IN_EEP		2
 
+// If any descriptor id > 255 bytes in size (ie. HID Report
+// Descriptors), define LARGE_DESC (probably could be automated)
+
+#if defined(LARGE_DESC)
+ typedef uint16_t desc_sz_t ;
+#else
+ typedef uint8_t  desc_sz_t ;
+#endif
+
+// With a single Interface, wIndex can be ignored for descriptor look-ups
+// Note: multi language would have to enable this as well.
+
+#if USB_CONFIG_NUM_INTERF > 1
+ #define M_IF( _c )		_c
+ #define M_IF_C( _c )		_c,
+#else
+ #define M_IF( _c )
+ #define M_IF_C( _c)
+#endif
+
 typedef struct
     {
 	uint16_t	wValue ;
-//	uint16_t	wIndex ;
+  M_IF( uint16_t	wIndex ; )
 	const uint8_t	*addr ;
 	uint8_t		where ;
-	uint8_t		length ;
+	desc_sz_t	length ;
     }
-    TA_PROGMEM( descriptor_list_t ) ;
+    descriptor_list_t ;
 
 static const descriptor_list_t
-    str_descriptors[] =
+    str_descriptors[] PROGMEM =
     {
-	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_LAN ),     /* 0x0000, */
+	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_LAN ),     M_IF_C(0x0000)
 	  VP( &usbStringDescLan  ),    IN_ROM, USB_STRING_DESC_LAN_SZ },
-	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_MAN ),     /* 0x0409, */
+	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_MAN ),     M_IF_C(0x0409)
 	  VP( &usbStringDescMan ),     IN_ROM, USB_STRING_DESC_MAN_SZ },
-	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_SER ),     /* 0x0409, */
+	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_SER ),     M_IF_C(0x0409)
 	  NULL,                        IN_EEP, USB_STRING_DESC_SER_SZ },
-	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_PRO_3DP ), /* 0x0409, */
+	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_PRO_3DP ), M_IF_C(0x0409)
 	  VP( &usbStringDescPro3DP ),  IN_ROM, USB_STRING_DESC_PRO_3DP_SZ },
-	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_PRO_PP  ), /* 0x0409, */
+	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_PRO_PP  ), M_IF_C(0x0409)
 	  VP( &usbStringDescProPP ),   IN_ROM, USB_STRING_DESC_PRO_PP_SZ  },
-	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_PRO_FFP ), /* 0x0409, */
+	{ USBLV( USB_STRING_DESC_TYPE, USB_STRING_IDX_PRO_FFP ), M_IF_C(0x0409)
 	  VP( &usbStringDescProFFP ),  IN_ROM, USB_STRING_DESC_PRO_FFP_SZ }
     },
-    cfg_descriptors_3DP[] =
+    cfg_descriptors_3DP[] PROGMEM =
     {
-	{  USBLV( USB_DEVICE_DESC_TYPE, 0 ),	/* 0, */
+	{  USBLV( USB_DEVICE_DESC_TYPE, 0 ),	M_IF_C(0)
 	   VP( &usbDeviceDesc3DP ),		IN_ROM, sizeof( usb_device_desc_t )
 	},
-	{  USBLV( USB_CONFIG_DESC_TYPE, 0 ),	/* 0, */
+	{  USBLV( USB_CONFIG_DESC_TYPE, 0 ),	M_IF_C(0)
 	   VP( &usbConfigurationDesc3DP ),	IN_ROM, sizeof( usb_configuration_desc_t )
 	},
-	{  USBLV( USB_HID_DESC_TYPE, 0 ),	/* USB_INTERF_NUM, */
+	{  USBLV( USB_HID_DESC_TYPE, 0 ),	M_IF_C(USB_INTERF_NUM)
 	  VP( &usbConfigurationDesc3DP.hid ),	IN_ROM, sizeof( usb_hid_desc_t )
 	},
-	{ USBLV( USB_HIDREP_DESC_TYPE, 0 ),	/* USB_INTERF_NUM, */
+	{ USBLV( USB_HIDREP_DESC_TYPE, 0 ),	M_IF_C(USB_INTERF_NUM)
 	  VP( &usbHidRepDesc3DP ),		IN_ROM, sizeof( usbHidRepDesc3DP )
 	}
     },
-    cfg_descriptors_PP[] =
+    cfg_descriptors_PP[] PROGMEM =
     {
-	{  USBLV( USB_DEVICE_DESC_TYPE, 0 ),	/* 0, */
+	{  USBLV( USB_DEVICE_DESC_TYPE, 0 ),	M_IF_C(0)
 	   VP( &usbDeviceDescPP ),		IN_ROM, sizeof( usb_device_desc_t )
 	},
-	{  USBLV( USB_CONFIG_DESC_TYPE, 0 ),	/* 0, */
+	{  USBLV( USB_CONFIG_DESC_TYPE, 0 ),	M_IF_C(0)
 	   VP( &usbConfigurationDescFFP ),	IN_ROM, sizeof( usb_configuration_desc_t )
 	},
-	{  USBLV( USB_HID_DESC_TYPE, 0 ),	/* USB_INTERF_NUM, */
+	{  USBLV( USB_HID_DESC_TYPE, 0 ),	M_IF_C(USB_INTERF_NUM)
 	  VP( &usbConfigurationDescFFP.hid ),	IN_ROM, sizeof( usb_hid_desc_t )
 	},
-	{ USBLV( USB_HIDREP_DESC_TYPE, 0 ),	/* USB_INTERF_NUM, */
+	{ USBLV( USB_HIDREP_DESC_TYPE, 0 ),	M_IF_C(USB_INTERF_NUM)
 	  VP( &usbHidRepDescFFP ),		IN_ROM, sizeof( usbHidRepDescFFP )
 	}
     },
-    cfg_descriptors_FFP[] =
+    cfg_descriptors_FFP[] PROGMEM =
     {
-	{  USBLV( USB_DEVICE_DESC_TYPE, 0 ),	/* 0, */
+	{  USBLV( USB_DEVICE_DESC_TYPE, 0 ),	M_IF_C(0)
 	   VP( &usbDeviceDescFFP ),		IN_ROM, sizeof( usb_device_desc_t )
 	},
-	{  USBLV( USB_CONFIG_DESC_TYPE, 0 ),	/* 0, */
+	{  USBLV( USB_CONFIG_DESC_TYPE, 0 ),	M_IF_C(0)
 	   VP( &usbConfigurationDescFFP ),	IN_ROM, sizeof( usb_configuration_desc_t )
 	},
-	{  USBLV( USB_HID_DESC_TYPE, 0 ),	/* USB_INTERF_NUM, */
+	{  USBLV( USB_HID_DESC_TYPE, 0 ),	M_IF_C(USB_INTERF_NUM)
 	  VP( &usbConfigurationDescFFP.hid ),	IN_ROM, sizeof( usb_hid_desc_t )
 	},
-	{ USBLV( USB_HIDREP_DESC_TYPE, 0 ),	/* USB_INTERF_NUM, */
+	{ USBLV( USB_HIDREP_DESC_TYPE, 0 ),	M_IF_C(USB_INTERF_NUM)
 	  VP( &usbHidRepDescFFP ),		IN_ROM, sizeof( usbHidRepDescFFP )
 	}
     } ;
@@ -129,8 +148,8 @@ static const descriptor_list_t
 //******************************************************************************
 
 volatile uint8_t
-    usb_configuration = 0,	// zero when not configured
-    usb_suspend = FALSE ;	// Suspended
+    usb_configuration,			// zero when not configured
+    usb_suspend ;			// Suspended
 
 //******************************************************************************
 
@@ -174,10 +193,10 @@ void usb_init ( void )
 
     UDCON = _B0(DETACH) ;		// enable attach resistor
 
-    UDIEN = _B1(EORSTE) |               // setup RX
-//	    _B1(SOFE) |                 // SOF
-//	    _B1(WAKEUPE) |              // wakeup
-	    _B1(SUSPE)  ;               // suspend
+    UDIEN = _B1(EORSTE) |		// setup RX
+//	    _B1(SOFE) |			// SOF
+//	    _B1(WAKEUPE) |		// wakeup
+	    _B1(SUSPE)  ;		// suspend
 }
 
 //------------------------------------------------------------------------------
@@ -313,10 +332,10 @@ ISR( USB_GEN_vect )
 	{
 	    // Enter suspend
 
-	    clr_bit( UDIEN, SUSPE ) ;
-	    set_bit( UDIEN, WAKEUPE ) ;
+	    clr_bit( UDIEN, SUSPE ) ;		// Disable suspend IRQ
+	    set_bit( UDIEN, WAKEUPE ) ;		// Enable wakeup IRQ
 
-	    set_bit( USBCON, FRZCLK ) ;		// Stop USB module
+	    set_bit( USBCON, FRZCLK ) ;		// Stop USB clcok
 	    clr_bit( PLLCSR, PLLE ) ;		// Stop PLL
 
 	    usb_suspend = TRUE ;
@@ -329,10 +348,10 @@ ISR( USB_GEN_vect )
 	    for ( set_bit( PLLCSR, PLLE ) ; bit_is_clear( PLLCSR, PLOCK ) ; )
 		;				// Start PLL
 
-	    clr_bit( USBCON, FRZCLK ) ;		// Start USB module
+	    clr_bit( USBCON, FRZCLK ) ;		// Enable USB clock
 
-	    set_bit( UDIEN, SUSPE ) ;
-	    clr_bit( UDIEN, WAKEUPE ) ;
+	    set_bit( UDIEN, SUSPE ) ;		// Enable suspend IRQ
+	    clr_bit( UDIEN, WAKEUPE ) ;		// Disable wakeup IRQ
 
 	    usb_suspend = FALSE ;
 	}
@@ -384,7 +403,7 @@ static inline void usb_ack_out ( void )
 
 // Send data block via EP0
 
-static void FA_NOINLINE( usb_send_EP0 ) ( const uint8_t *p, uint8_t len, uint8_t where )
+static void FA_NOINLINE( usb_send_EP0 ) ( const uint8_t *p, desc_sz_t len, uint8_t where )
 {
     uint8_t
 	i, n ;
@@ -428,11 +447,11 @@ static void FA_NOINLINE( usb_send_EP0 ) ( const uint8_t *p, uint8_t len, uint8_t
 // Look up a descriptor
 
 static uint8_t * FA_NOINLINE( lookup )
-    ( uint16_t wValue, /* uint16_t wIndex, */ const descriptor_list_t *desc, uint8_t len )
+    ( uint16_t wValue, M_IF_C( uint16_t wIndex ) const descriptor_list_t *desc, uint8_t len )
 {
     for ( ; len-- ; ++desc )
-	if (    pgm_read_word( &desc->wValue ) == wValue
-//	     && pgm_read_word( &desc->wIndex ) == wIndex
+	if (          pgm_read_word( &desc->wValue ) == wValue
+	     M_IF( && pgm_read_word( &desc->wIndex ) == wIndex )
 	   )
 	    return ( VP( desc ) ) ;
 
@@ -474,16 +493,16 @@ ISR( USB_COM_vect )
 
 	if ( bRequest == GET_DESCRIPTOR )
 	{
-	    if ( ! (p = lookup( wValue, /* wIndex, */ str_descriptors, ARRSZ( str_descriptors ) )) )
+	    if ( ! (p = lookup( wValue, M_IF_C(wIndex) str_descriptors, ARRSZ( str_descriptors ) )) )
 	    {
 		if ( sw_id == SW_ID_3DP )
-		    p = lookup( wValue, /* wIndex, */ cfg_descriptors_3DP, ARRSZ( cfg_descriptors_3DP ) ) ;
+		    p = lookup( wValue, M_IF_C(wIndex) cfg_descriptors_3DP, ARRSZ( cfg_descriptors_3DP ) ) ;
 		else
 		if ( sw_id == SW_ID_PP )
-		    p = lookup( wValue, /* wIndex, */ cfg_descriptors_PP,  ARRSZ( cfg_descriptors_PP ) ) ;
+		    p = lookup( wValue, M_IF_C(wIndex) cfg_descriptors_PP,  ARRSZ( cfg_descriptors_PP ) ) ;
 		else
 		if ( sw_id == SW_ID_FFP )
-		    p = lookup( wValue, /* wIndex, */ cfg_descriptors_FFP, ARRSZ( cfg_descriptors_FFP ) ) ;
+		    p = lookup( wValue, M_IF_C(wIndex) cfg_descriptors_FFP, ARRSZ( cfg_descriptors_FFP ) ) ;
 
 		if ( ! p )
 		{
@@ -492,13 +511,32 @@ ISR( USB_COM_vect )
 		}
 	    }
 
+	  #if defined(LARGE_DESC)
+	    // Get length and start address
+
+	    wIndex = pgm_read_word( &((descriptor_list_t *)p)->length ) ;
+
+	    if ( wLength > wIndex )
+		wLength = wIndex ;
+
+	    n = pgm_read_byte( &((descriptor_list_t *)p)->where ) ;
+
+	    p = VP( pgm_read_word( &((descriptor_list_t *)p)->addr ) ) ;
+
+	    usb_send_EP0( p, wLength, n ) ;
+	  #else
 	    // Get length and start address
 
 	    n = pgm_read_byte( &((descriptor_list_t *)p)->length ) ;
 
 	    // Note: code limits max. descriptor size to 255
 
-	    if ( (i = (wLength < 256) ? wLength : 255) > n )
+	    if ( wLength & 0xFF00 )
+		i = 255 ;
+	    else
+		i = wLength ;
+
+	    if ( i > n )
 		i = n ;
 
 	    n = pgm_read_byte( &((descriptor_list_t *)p)->where ) ;
@@ -506,6 +544,7 @@ ISR( USB_COM_vect )
 	    p = VP( pgm_read_word( &((descriptor_list_t *)p)->addr ) ) ;
 
 	    usb_send_EP0( p, i, n ) ;
+	  #endif
 
 	    return ;
 	}
