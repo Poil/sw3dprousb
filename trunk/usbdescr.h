@@ -31,11 +31,12 @@
 #define	USB_PRODUCT_ID_3DP		wUSB( 0x0002 )
 #define	USB_PRODUCT_ID_PP		wUSB( 0x0004 )
 #define	USB_PRODUCT_ID_FFP		wUSB( 0x0005 )
+#define	USB_PRODUCT_ID_6DP		wUSB( 0xBEEF )
 
 #if defined(FFP_HW)
-#define USB_DEVICE_VERSION		wUSB( 0x0401 )	/* 4.01 */
+ #define USB_DEVICE_VERSION		wUSB( 0x0401 )	/* 4.01 */
 #else
-#define USB_DEVICE_VERSION		wUSB( 0x0400 )	/* 4.00 */
+ #define USB_DEVICE_VERSION		wUSB( 0x0400 )	/* 4.00 */
 #endif
 
 #define USB_STRING_MAN			'D','e','t','l','e','f',' ', \
@@ -45,7 +46,7 @@
 
 #define USB_STRING_PRO_3DP		'M','i','c','r','o','s','o','f','t',' ', \
 					'S','i','d','e','W','i','n','d','e','r',' ', \
-					'3','D',' ','P','r','o',' ', \
+					'3' + SIXAXIS * 3,'D',' ','P','r','o',' ', \
 					'(','U','S','B',')'
 #define USB_STRING_PRO_3DP_SZ		33
 
@@ -72,7 +73,7 @@
 //-------------------------------------------------------------------------------
 // Report descriptor sizes
 
-#define	USB_HIDREP_DESC_3DP_SZ		(84 + HID_PHYS * 16)
+#define	USB_HIDREP_DESC_3DP_SZ		(84 + HID_PHYS * 16 + SIXAXIS * 4)
 #define	USB_HIDREP_DESC_FFP_SZ		(92 + HID_PHYS * 18)	/* PP, FFP */
 
 //------------------------------------------------------------------------------

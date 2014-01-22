@@ -42,6 +42,17 @@ const uint8_t
 	0x09,0x30,		//     USAGE (X)
 	0x09,0x31,		//     USAGE (Y)
 	0x81,0x02,		//     INPUT (Data,Var,Abs)             20b X/Y
+#if SIXAXIS
+	0x75,0x08,		//     REPORT_SIZE (8)
+	0x15,0x80,		//     LOGICAL_MINIMUM (-128)
+	0x25,0x7F,		//     LOGICAL_MAXIMUM (127)
+#if HID_PHYS
+	0x46,0xFF,0x00,		//     PHYSICAL_MAXIMUM (255)				-3 SIX
+#endif
+	0x09,0x33,		//     USAGE (Rx)
+	0x09,0x34,		//     USAGE (Ry)
+	0x81,0x02,		//     INPUT (Data,Var,Abs)             16b Rx/Ry	+15 bytes
+#endif
 	0x95,0x01,		//     REPORT_COUNT (1)
 	0x75,0x09,		//     REPORT_SIZE (9)
 	0x16,0x00,0xFF,		//     LOGICAL_MINIMUM (-256)
@@ -52,6 +63,7 @@ const uint8_t
 #endif
 	0x09,0x35,		//     USAGE (Rz)
 	0x81,0x02,		//     INPUT (Data,Var,Abs)              9b Rz
+#if ! SIXAXIS
 	0x75,0x04,		//     REPORT_SIZE (4)
 	0x15,0x00,		//     LOGICAL_MINIMUM (0)
 	0x25,0x07,		//     LOGICAL_MAXIMUM (7)
@@ -60,8 +72,12 @@ const uint8_t
 #endif
 	0x09,0x39,		//     USAGE (Hat switch)
 	0x81,0x42,		//     INPUT (Data,Var,Abs,Null)         4b Hat		-13 bytes
+#endif
 	0x95,0x04,		//     REPORT_COUNT (4)
 	0x75,0x01,		//     REPORT_SIZE (1)
+#if SIXAXIS
+	0x15,0x00,		//     LOGICAL_MINIMUM (0)				 +2 bytes
+#endif
 	0x25,0x01,		//     LOGICAL_MAXIMUM (1)
 #if HID_PHYS
 	0x45,0x01,		//     PHYSICAL_MAXIMUM (1)				-2
@@ -79,9 +95,13 @@ const uint8_t
 	0x95,0x01,		//   REPORT_COUNT (1)
 	0x09,0x36,		//   USAGE (Slider)
 	0x81,0x02,		//   INPUT (Data,Var,Abs)               10b Throttle
+#if SIXAXIS
+	0x75,0x01,		//   REPORT_SIZE (1)			 1b Fill
+#else
 	0x75,0x05,		//   REPORT_SIZE (5)			 5b Fill
+#endif
 	0x81,0x01,		//   INPUT (Cnst,Ary,Abs)
-	0xC0			// END_COLLECTION                       56b -> 7bytes
+	0xC0			// END_COLLECTION                       56b -> 7bytes, 8 bytes for SIXAXIS
     } ;
 
 //------------------------------------------------------------------------------

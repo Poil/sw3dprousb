@@ -37,6 +37,13 @@ extern volatile uint8_t
 
 //------------------------------------------------------------------------------
 
+#define ENDPOINT0_SIZE		64
+
+#define EP_HID			4
+#define EP_HID_SZ		8	/* next up would be 16 */
+
+//------------------------------------------------------------------------------
+
 #ifdef __usb_hid__
 
 //------------------------------------------------------------------------------
@@ -158,18 +165,15 @@ extern volatile uint8_t
 #define HID_SET_IDLE		10
 #define HID_SET_PROTOCOL	11
 
-#define EP_HID_BUFFER		EP_SINGLE_BUFFER /* EP_DOUBLE_BUFFER */
+#if defined(__AVR_AT90USBX2__)
+ #define EP_HID_BUFFER		((EP_HID  <= 2) ? EP_SINGLE_BUFFER : EP_DOUBLE_BUFFER)
+#else
+ #define EP_HID_BUFFER		/* EP_SINGLE_BUFFER */ EP_DOUBLE_BUFFER
+#endif
 
 //------------------------------------------------------------------------------
 
 #endif // __usb_hid__
-
-//------------------------------------------------------------------------------
-
-#define ENDPOINT0_SIZE		64
-
-#define EP_HID			1
-#define EP_HID_SZ		8	/* next up would be 16 */
 
 //------------------------------------------------------------------------------
 

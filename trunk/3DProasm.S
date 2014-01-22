@@ -481,6 +481,173 @@ CopyFFPData:
 
 	ret
 
+#if SIXAXIS
+
+;-------------------------------------------------------------------------------
+;*******************************************************************************
+;	Decode the raw 3DPro data and store it into sw_report
+;
+; Input:
+;	Pointer to start of packet to copy
+;
+;	3D Pro data packet structure
+;	============================
+;
+;	0   **** 0        0        0        0        0        0        1
+;	66665555 55555544 44444444 33333333 33222222 22221111 11111100 00000000
+;	32109876 54321098 76543210 98765432 10987654 32109876 54321098 76543210
+;	-------0 -------1 -------2 -------3 -------4 -------5 -------6 -------7
+;	sHHHcccc sTTTTTTT sRRRRRRR sBBRRTTT sYYYYYYY sXXXXXXX sBBBBBBB sHXXXYYY
+;	 210      6543210  6543210  8987987  6543210  6543210  7654321  3987987
+;
+;	USB report data structure
+;	=========================
+;
+;	-------0 -------1 -------2 -------3 -------4 -------5 -------6 -------7
+;	XXXXXXXX YYYYYYXX xxxxYYYY yyyyxxxx RRRRyyyy BBBRRRRR TTTBBBBB 0TTTTTTT
+;	76543210 54321098 32109876 32107654 32107654 32187654 21087654  9876543
+;
+;-------------------------------------------------------------------------------
+
+	.global Copy3DPData
+
+Copy3DPData:
+	movw	XL,argPtrL
+
+	; Get X
+
+	ldi	temp1,5
+	add	XL,temp1
+
+	ld	temp0,X			; xl:-6543210
+
+	inc	XL
+	inc	XL
+
+	ld	temp2,X
+	andi	temp2,0b00111000	; xh:--987---
+
+	lsl	temp2			; xh:-987----
+	swap	temp2			; xh:-----987
+	lsl	temp0			; xl:6543210-
+	lsr	temp2			; xh:------98 [7]
+	ror	temp0			; xl:76543210
+
+	ldi	temp1,0xFE
+	add	temp2,temp1		; Add -512
+	andi	temp2,0b00000011	; xh:------98
+
+	sts	sw_report,temp0
+
+	; Y
+
+	ld	temp1,X
+	andi	temp1,0b00000111	; yh:-----987
+
+	subi	XL,3
+
+	ld	temp0,X			; yl:-6543210
+
+	lsl	temp0			; yl:6543210-
+	lsr	temp1			; yh:------98 [7]
+	ror	temp0			; yl:76543210
+
+	ldi	temp3,0xFE
+	add	temp1,temp3		; Add -512
+	andi	temp1,0b00000011	; yh:------98
+
+	lsl	temp0			; yl:6543210-
+	rol	temp1			; yh:-----987
+	lsl	temp0			; yl:543210--
+	rol	temp1			; yh:----9876
+	or	temp0,temp2
+
+	sts	sw_report+1,temp0
+
+	; x,y patched elsewhere
+
+	lds	temp0,sw_report+2
+	andi	temp0,0b11110000	;xl:3210----
+	or	temp0,temp1		;yh:++++9876
+	sts	sw_report+2,temp0
+
+	; Rz
+
+	subi	XL,2
+
+	ld	temp0,X			; rl:-6543210
+	swap	temp0			; rl:3210-654
+	mov	temp1,temp0
+
+	andi	temp1,0b11110000
+	andi	temp0,0b00000111
+
+	lds	temp2,sw_report+4	; yh:----7654
+	andi	temp2,0b00001111
+	or	temp2,temp1		; rl:3210++++
+	sts	sw_report+4,temp2
+
+	inc	XL
+
+	ld	temp1,X
+	bst	temp1,6			;  b:-8------
+
+	ldi	temp3,0b00000100
+	add	temp3,temp1
+	andi	temp3,0b00000111	;  t:-----987
+	swap	temp3			;  t:-987----
+
+	ldi	temp2,0b00010000
+	add	temp1,temp2
+	andi	temp1,0b00011000	; rh:---87---
+	or	temp1,temp0		; rh:---87654
+
+	; Buttons 1-8, Throttle
+
+	inc	XL
+	inc	XL
+	inc	XL
+
+	ld	temp0,X			;  b:-7654321
+
+	mov	temp2,temp0
+	lsl	temp2
+	swap	temp2			;  b:----7654
+	bld	temp2,4			;  b:---87654
+	com	temp2
+	andi	temp2,0b00011111
+
+	swap	temp0
+	lsl	temp0			;  b:321-----
+	com	temp0
+	andi	temp0,0b11100000
+
+	or	temp0,temp1
+	sts	sw_report+5,temp0
+
+	subi	XL,5
+
+	ld	temp0,X			;  t:-6543210
+	mov	temp1,temp0
+
+	andi	temp0,0b00000111
+	swap	temp0
+	lsl	temp0			;  t:210-----
+
+	or	temp0,temp2
+	sts	sw_report+6,temp0
+
+	andi	temp1,0b01111000	;  t:-6543---
+	lsl	temp1
+	swap	temp1			;  t:----6543
+
+	or	temp1,temp3		;  t:-9876543
+	sts	sw_report+7,temp1
+
+	ret
+
+#else // ! SIXAXIS
+
 ;-------------------------------------------------------------------------------
 ;*******************************************************************************
 ;	Decode the raw 3DPro data and store it into sw_report
@@ -671,6 +838,8 @@ Copy3DPData:
 	sts	sw_report+6,temp1
 
 	ret
+
+#endif // SIXAXIS
 
 ;-------------------------------------------------------------------------------
 ;*******************************************************************************

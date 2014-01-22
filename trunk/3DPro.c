@@ -34,8 +34,8 @@
  *	PB1	--			PD1	Button2			PF1	--
  *	PB2	--			PD2	Button3	PE2	--
  *	PB3	--			PD3	Button4
- *	PB4	X1 axis			PD4	--			PF4	--
- *	PB5	Y2 axis			PD5	--			PF5	--
+ *	PB4	X1 axis			PD4	--			PF4	POV X
+ *	PB5	Y2 axis			PD5	--			PF5	POV Y
  *	PB6	--	PC6	--	PD6	LED	PE6	--	PF6	--
  *	PB7	--	PC7	--	PD7	--			PF7	--
  *
@@ -117,6 +117,7 @@
 						 PU1( PF1) | PU1( PF0))
 #define DDF		(DDI(DDF7) | DDI(DDF6) | DDI(DDF5) | DDI(DDF4) | \
 						 DDI(DDF1) | DDI(DDF0))
+
 #elif defined(__AVR_AT90USBX6__)
 
 #define PAPU		(PU1( PA7) | PU1( PA6) | PU1( PA5) | PU1( PA4) | \
@@ -159,6 +160,14 @@ uint8_t
 static uint8_t
     sw_buttons,					// button buffer
     sw_problem ;				// problem counter
+
+#if SIXAXIS
+
+static uint16_t
+    AcntrX,					// Analog center X
+    AcntrY ;					// Analog center Y
+
+#endif
 
 //------------------------------------------------------------------------------
 //******************************************************************************
@@ -418,6 +427,90 @@ static void FA_NORETURN( reboot ) ( void )
 
 //------------------------------------------------------------------------------
 
+#if SIXAXIS
+
+// Need the ADC ISR handler for wakeup from sleep.
+
+EMPTY_INTERRUPT( ADC_vect ) 
+
+//------------------------------------------------------------------------------
+
+#define	ADC_RX		0b0100
+#define	ADC_RY		0b0101
+
+#define	ADC_CRX		0b1100
+#define	ADC_CRY		0b1101
+
+static void ReadADC ( uint8_t chan )
+{
+    uint8_t
+	adc8 ;
+    uint16_t
+	adc16 ;
+
+    if ( chan & 0x01 )
+	set_bit( ADMUX, MUX0 ) ;		// select channel 5, Ry
+    else
+	clr_bit( ADMUX, MUX0 ) ;		// select channel 4, Rx
+
+    sleep_enable() ;
+
+    do
+	sleep_cpu() ;				// ADCNR/IDLE sleep, starts conv.
+    while ( bit_is_set( ADCSRA, ADSC ) ) ;
+
+    sleep_disable() ;
+
+    adc16 = ADC ;				// Read A value, left adj. (!)
+
+    switch ( chan )
+    {
+	case ADC_RX :
+	    if ( adc16 >= AcntrX )
+		adc8 = -((adc16 - AcntrX) >> 8) ;
+	    else
+	    {
+		adc8 = (AcntrX - adc16) >> 8 ;
+
+		if ( adc8 > 0x7F )
+		    adc8 = 0x7F ;
+	    }
+
+	    sw_report[2] = (sw_report[2] & 0x0F) | (adc8 << 4) ;
+	    sw_report[3] = (sw_report[3] & 0xF0) | (adc8 >> 4) ;
+
+	    break ;
+
+	case ADC_RY :
+	    if ( adc16 >= AcntrY )
+		adc8 = -((adc16 - AcntrY) >> 8) ;
+	    else
+	    {
+		adc8 = (AcntrY - adc16) >> 8 ;
+
+		if ( adc8 > 0x7F )
+		    adc8 = 0x7F ;
+	    }
+
+	    sw_report[3] = (sw_report[3] & 0x0F) | (adc8 << 4) ;
+	    sw_report[4] = (sw_report[4] & 0xF0) | (adc8 >> 4) ;
+
+	    break ;
+
+	case ADC_CRX :			// center Rx
+	    AcntrX = adc16 ;
+	    break ;
+
+	case ADC_CRY :			// center Ry
+	    AcntrY = adc16 ;
+	    break ;
+    }
+}
+
+#endif
+
+//------------------------------------------------------------------------------
+
 // Initialize the hardware
 
 void init_hw ( void )
@@ -480,7 +573,12 @@ void init_hw ( void )
 
     Delay_1024( T0DEL200MS ) ;			// Allow the stick to boot
 
-//    if ( ClrSerial() )				// Clear serial no. condition met ?
+    LED_off() ;
+						// Hold 3 & 4, then switch from * --> **
+    if ( (BUTPIN & BUTMSK) == (_B1(BUT1) | _B1(BUT2) | _B0(BUT3) | _B0(BUT4)) )
+	jmp_bootloader() ;
+
+//    if ( ClrSerial() )			// Clear serial no. condition met ?
 //	eeprom_write_byte( NULL, 0xFF ) ;	// Invalidate serial no.
 
     for ( ;; )					// Forever..
@@ -505,7 +603,42 @@ void init_hw ( void )
 	}
 	else
 	if ( Init3DPro() )			// Check for 3DP
-	    break ;				// found 3DP, break forever
+	{					// found 3DP
+	  #if SIXAXIS
+
+	    clr_bit( PRR0, ADC ) ;		// power up ADC
+
+	    set_sleep_mode( SLEEP_MODE_ADC ) ;	// Works w/ USB module ? Seems to.
+
+	    Delay_1024( T0DEL4MS ) ;		// Wait for all activity to stop
+
+	    clr_bits( PORTF, _B1(PF4) | _B1(PF5) ) ;// Turn off analog pin pull-up's
+
+	    DIDR0 = _B1(ADC5D) | _B1(ADC4D) ;	// Disable digital input buffers
+
+	    ADMUX  =
+		_B0(REFS1) | _B1(REFS0) |       // AVcc w/ cap on AREF
+		_B1(ADLAR) |                    // left adjusted result (!)
+		4 ;                             // Preselect channel 4
+
+	    ADCSRA =				// Initialize ADC for Rx/Ry
+		_B1(ADEN) |			//   enable
+		_B0(ADSC) |			// ! start conversion
+		_B0(ADATE) |			// ! auto trigger enable
+		_B1(ADIF) |			//   clear interrupt flag
+		_B1(ADIE) |			//   enable interrupt
+		_B0(ADPS2) | _B1(ADPS1) | _B1(ADPS0) ; // prescaler / 8 --> 125kHz
+
+	    ReadADC( ADC_CRX ) ;		// Start up ADC, read AcntrX
+	    ReadADC( ADC_CRY ) ;		// Read AcntrY
+
+//	    if ( sw_packet1[3] & 0x20 )		// B9 in pos. II, could sig. calibrate
+//	    {
+//	    }
+	  #endif
+
+	    break ;				// break forever
+	}
 
 	dis3DP_INT() ;
     }
@@ -526,6 +659,23 @@ static void patchbutt ( void )
     uint8_t
 	b = sw_buttons ;
 
+  #if SIXAXIS
+
+    __asm__ __volatile__
+    (
+	"com	%0		\n\t"
+	"lsl	%0		\n\t"
+	"swap	%0		\n\t"
+	"andi	%0,0b11100001	\n\t"
+	: "+r" (b) : "0" (b) : "cc"
+    ) ;
+
+    // Patch buttons into report data
+
+    sw_report[5] = (sw_report[5] & 0x1F) | (b & 0xE0) ;
+    sw_report[6] = (sw_report[6] & 0xFE) | (b & 0x01) ;
+  #else
+
     __asm__ __volatile__
     (
 	"com	%0		\n\t"
@@ -537,6 +687,7 @@ static void patchbutt ( void )
     // Patch buttons into report data
 
     sw_report[4] = (sw_report[4] & 0xE1) | b ;
+  #endif
 }
 
 //------------------------------------------------------------------------------
@@ -550,6 +701,11 @@ void getdata ( void )
 
     if ( sw_id == SW_ID_3DP )
     {
+      #if SIXAXIS
+	ReadADC( ADC_RX ) ;			// Read Rx
+	ReadADC( ADC_RY ) ;			// Read Ry
+      #endif
+
 	sw_buttons = BUTPIN ;			// Save current button data
 
 	i = Query3DP( 0, DATSZ3DP ) ;		// Query 3DP
