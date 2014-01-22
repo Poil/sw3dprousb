@@ -29,10 +29,10 @@
 static const uint8_t
     endpoint_config_table[] PROGMEM =
     {
-	TRUE, EP_TYPE_INTERRUPT_IN, EP_SIZE( EP_HID_SZ ) | EP_HID_BUFFER,
 	FALSE,
 	FALSE,
-	FALSE
+	FALSE,
+	TRUE, EP_TYPE_INTERRUPT_IN, EP_SIZE( EP_HID_SZ ) | EP_HID_BUFFER
       #if defined(__AVR_ATmegaXU4__) || defined(__AVR_AT90USBX6__)
 	,FALSE
 	,FALSE
@@ -288,7 +288,7 @@ uint8_t usb_send_IN ( uint8_t *data, uint8_t len )
     UEINTX =
 	  _B0(FIFOCON)			// Send FIFO data & switch bank
 	| _B0(NAKINI)			// Clear previous NAK
-	| _B1(RWAL)			// Preset RWAL
+	| _B0(RWAL)			// Don't mess w/ RWAL
 	| _B1(NAKOUTI)			// no effect on the bit
 	| _B1(RXSTPI)			// no effect on the bit
 	| _B0(RXOUTI)			// no effect on the bit

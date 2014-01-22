@@ -4,7 +4,8 @@
  * Date		: 2014/01/09
  * Version      : 1.1
  * Target MCU   : AT90USB8/162, ATMEGA16/32U4/U2, AT90USB64/1286
- * Tool Chain   : Atmel AVR Studio 4.19 730 / WinAVR 20100110
+ * Tool Chain   : Atmel AVR Studio 4.19 730,
+ *		  WinAVR-20100110 or avr-gcc 4.7.0 and avr-libc 1.8.0
  * Author       : "Detlef Mueller" <detlef@gmail.com>
  * Release Notes:
  *
@@ -58,6 +59,23 @@
 
 #include <util/delay_basic.h>
 
+//------------------------------------------------------------------------------
+
+#define	VP( p )			(void *)(p)
+#define ARRSZ( a )		(sizeof(a) / sizeof(*(a)))
+
+#ifndef	FALSE
+ #define FALSE			0
+#endif
+
+#ifndef	TRUE
+ #define TRUE			(! FALSE)
+#endif
+
+#ifndef NULL
+ #define NULL			0
+#endif
+
 //-------------------------------------------------------------------------------
 // Things not defined in iom32u4.h
 
@@ -99,7 +117,7 @@
 #endif
 
 //------------------------------------------------------------------------------
-// Missing in power.h for the ATmegaXU2 (WinAVR 20100110)
+// Missing in power.h for the ATmegaXU2 in avr-libc 1.6.7 (WinAVR 20100110)
 
 #if defined(__AVR_ATmegaXU2__)
 
@@ -188,31 +206,83 @@ typedef enum
 
 #define	RESET()		JMP( 0 )
 
-#define	RET()		__asm__ __volatile__ ( "ret\n\t" :: )
-#define	SLEEP()		__asm__ __volatile__ ( "sleep\n\t" :: )
-#define	NOP()		__asm__ __volatile__ ( "nop\n\t" :: )
-#define	NOP2()		__asm__ __volatile__ ( "rjmp .+0\n\t" :: )
+#define	RET()		__asm__ __volatile__ ( "ret" "\n\t" :: )
+#define	SLEEP()		__asm__ __volatile__ ( "sleep" "\n\t" :: )
+#define	NOP()		__asm__ __volatile__ ( "nop" "\n\t" :: )
+#define	NOP2()		__asm__ __volatile__ ( "rjmp .+0" "\n\t" :: )
 
 //------------------------------------------------------------------------------
 
-#define	VP( p )			(void *)(p)
-#define ARRSZ( a )		(sizeof(a) / sizeof(*(a)))
+static inline uint8_t
+	__FA__( ror8, __always_inline__ ) ( uint8_t _v )
+{
+    __asm__ __volatile__
+    (
+	"bst    %0,0"		"\n\t"
+	"lsr    %0"		"\n\t"
+	"bld    %0,7"		"\n\t"
+	: "+r" (_v) : "0" (_v) : "cc"
+    ) ;
 
-#ifndef	FALSE
- #define FALSE			0
-#endif
+    return ( _v ) ;
+}
 
-#ifndef	TRUE
- #define TRUE			(! FALSE)
-#endif
+static inline uint8_t
+	__FA__( rol8, __always_inline__ ) ( uint8_t _v )
+{
+    __asm__ __volatile__
+    (
+	"bst    %0,7"		"\n\t"
+	"lsl    %0"		"\n\t"
+	"bld    %0,0"		"\n\t"
+	: "+r" (_v) : "0" (_v) : "cc"
+    ) ;
 
-#ifndef NULL
- #define NULL			0
-#endif
+    return ( _v ) ;
+}
 
 //------------------------------------------------------------------------------
 
-#if defined(__AVR_ATmegaXU2__)
+#if defined(__FIND_BL_ADDR) || defined(__AVR_ATmegaXU2__) || defined(__AVR_AT90USB162__)
+
+#include <avr/boot.h>
+
+#define	_mBOOTSZ1	((uint8_t)~FUSE_BOOTSZ1)
+#define	_mBOOTSZ0	((uint8_t)~FUSE_BOOTSZ0)
+#define	_mBOOTSZ	(_mBOOTSZ1 | _mBOOTSZ0)
+
+#define	_BL_ADDR( sz )	((unsigned long)FLASHEND -		\
+			 (((unsigned long)FLASHEND > 0x8000u) ?	\
+			  ((sz) << 1) : (sz)) + 1)
+
+//typedef
+//    void (*__jmp)( void ) __attribute__((__noreturn__)) ;
+//
+//#define __JMP( adr )  ((__jmp)(adr >> 1))()
+
+static inline void
+	__FA__( jmp_bootloader, __always_inline__,__noreturn__ ) ( void )
+{
+    uint8_t
+	bls_sz = boot_lock_fuse_bits_get( GET_HIGH_FUSE_BITS ) & _mBOOTSZ ;
+
+    if ( bls_sz == _mBOOTSZ )
+	JMP( _BL_ADDR( 512 ) ) ;
+    else
+    if ( bls_sz == _mBOOTSZ1 )
+	JMP( _BL_ADDR( 1024 ) ) ;
+    else
+    if ( bls_sz == _mBOOTSZ0 )
+	JMP( _BL_ADDR( 2048 ) ) ;
+
+    JMP( _BL_ADDR( 4096 ) ) ;
+
+    for ( ;; ) ;			// Shut up GCC
+}
+
+#else
+
+#if   defined(__AVR_ATmega16U2__)
  #define __BL_ADDR			0x3000		/* KeyCard */
 #elif defined(__AVR_AT90USB162__)
  #define __BL_ADDR			0x3E00		/* Teensy 1.0 */
@@ -225,6 +295,8 @@ typedef enum
 #endif 
 
 #define	jmp_bootloader()		JMP( __BL_ADDR )
+
+#endif
 
 #if FOR_REFERENCE
 
